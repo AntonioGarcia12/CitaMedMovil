@@ -19,7 +19,6 @@ class _LoginFormState extends State<LoginForm> {
   bool _verContrasenya = false;
   String? _errorMensaje;
   bool _isLoading = false;
-  bool _recuerdame = false;
 
   Future<void> _iniciarSesion() async {
     if (!_formKey.currentState!.validate()) return;
@@ -160,35 +159,6 @@ class _LoginFormState extends State<LoginForm> {
               }
               return null;
             },
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Transform.scale(
-                    scale: 0.9,
-                    child: Checkbox(
-                      value: _recuerdame,
-                      onChanged: (value) {
-                        setState(() {
-                          _recuerdame = value ?? false;
-                        });
-                      },
-                      activeColor: const Color(0xFF00838F),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'Recordarme',
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-                  ),
-                ],
-              ),
-            ],
           ),
 
           const SizedBox(height: 32),

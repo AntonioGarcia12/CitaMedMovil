@@ -1,8 +1,7 @@
 import 'dart:io';
 
+import 'package:citamed/DTO/paciente_dto.dart';
 import 'package:citamed/infrastructures/models/usuario.dart';
-import 'package:citamed/presentation/widgets/bottom_navigation_bar_widget.dart';
-import 'package:citamed/services/paciente_services.dart';
 import 'package:citamed/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -58,24 +57,48 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
 
   Future<void> _guardarCambios() async {
     if (_formKey.currentState!.validate() && _usuario != null) {
-      setState(() => _isLoading = true);
+      final telefonoNuevo = _telefonoController.text.trim();
+      final direccionNueva = _direccionController.text.trim();
 
-      _usuario!.telefono = _telefonoController.text.trim();
-      _usuario!.direccion = _direccionController.text.trim();
+      final cambios = PacienteDto(
+        telefono:
+            telefonoNuevo.isNotEmpty && telefonoNuevo != _usuario!.telefono
+                ? telefonoNuevo
+                : null,
+        direccion:
+            direccionNueva.isNotEmpty && direccionNueva != _usuario!.direccion
+                ? direccionNueva
+                : null,
+      );
+
+      if (cambios.telefono == null &&
+          cambios.direccion == null &&
+          _imagenSeleccionada == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No hay cambios para guardar')),
+        );
+        return;
+      }
+
+      setState(() => _isLoading = true);
 
       try {
         final actualizado = await _pacienteService.editarPaciente(
-          usuario: _usuario!,
+          usuarioActual: _usuario!,
+          cambios: cambios,
           archivo: _imagenSeleccionada,
         );
+
+        setState(() => _usuario = actualizado);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Datos actualizados correctamente')),
         );
-        setState(() => _usuario = actualizado);
+        context.go('/paciente');
       } catch (e) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error: \$e')));
       } finally {
         setState(() => _isLoading = false);
       }
@@ -113,7 +136,6 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                   height: 200,
                   width: 200,
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -126,7 +148,6 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                   height: 250,
                   width: 250,
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.07),
                     borderRadius: BorderRadius.circular(125),
                   ),
@@ -141,8 +162,15 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                       vertical: 16,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => context.go('/paciente'),
+                        ),
                         IconButton(
                           icon: const Icon(Icons.logout, color: Colors.white),
                           onPressed: () async {
@@ -201,7 +229,6 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                       BoxShadow(
                                         color: const Color(
                                           0xFF006064,
-                                          // ignore: deprecated_member_use
                                         ).withOpacity(0.3),
                                         blurRadius: 30,
                                         offset: const Offset(0, 15),
@@ -333,7 +360,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                                 _isLoading
                                                     ? null
                                                     : _guardarCambios,
-                                            icon: const Icon(Icons.save),
+
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: const Color(
                                                 0xFF00838F,
@@ -351,7 +378,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                             label: Text(
                                               _isLoading
                                                   ? 'Guardando...'
-                                                  : 'Guardar cambios',
+                                                  : 'Guardar',
                                               style: const TextStyle(
                                                 fontSize: 16,
                                               ),
@@ -371,7 +398,6 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavigationBarWidget(),
     );
   }
 
@@ -379,23 +405,24 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
 
   Widget _buildReadOnlyField(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        initialValue: value,
-        readOnly: true,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.grey.shade100,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Colors.grey,
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16, color: Colors.black87),
           ),
-        ),
+        ],
       ),
     );
   }

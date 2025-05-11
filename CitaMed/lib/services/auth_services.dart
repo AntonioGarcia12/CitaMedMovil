@@ -5,7 +5,6 @@ import 'package:citamed/config/api_config.dart';
 import 'package:citamed/infrastructures/models/centro_de_salud.dart';
 import 'package:citamed/infrastructures/models/medico.dart';
 import 'package:citamed/infrastructures/models/usuario.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,8 +19,6 @@ class AuthService {
       headers: {'Accept': 'application/json'},
       body: {'email': email, 'contrasenya': contrasenya},
     );
-
-    debugPrint('🔐 Login response body: ${response.body}');
 
     final Map<String, dynamic> responseData = json.decode(response.body);
 
@@ -52,10 +49,10 @@ class AuthService {
     final token = data["token"] as String? ?? '';
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
-    debugPrint('✅ Token guardado tras login: "$token"');
     await prefs.setString('nombre', nombre);
     await prefs.setInt('id', id);
     await prefs.setString('rol', rol);
+    await prefs.setString('imagen', imagen);
 
     if (rol == 'MEDICO') {
       return Medico(

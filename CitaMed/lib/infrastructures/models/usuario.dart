@@ -65,4 +65,23 @@ class Usuario {
       imagen: '',
     );
   }
+
+  Usuario copyWith({String? telefono, String? direccion, String? imagen}) {
+    return Usuario(
+      id: id,
+      nombre: nombre,
+      apellido: apellido,
+      email: email,
+      contrasenya: contrasenya,
+      telefono: telefono ?? this.telefono,
+      activo: activo,
+      rol: rol,
+      direccion: direccion ?? this.direccion,
+      dni: dni,
+      imagen: imagen ?? this.imagen,
+      numeroSeguridadSocial: numeroSeguridadSocial,
+      sexo: sexo,
+      fechaNacimiento: fechaNacimiento,
+    );
+  }
 }

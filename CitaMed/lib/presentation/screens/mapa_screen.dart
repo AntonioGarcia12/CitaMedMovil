@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:citamed/infrastructures/models/centro_de_salud.dart';
-import 'package:citamed/presentation/widgets/bottom_navigation_bar_widget.dart';
 import 'package:citamed/services/centro_de_salud_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:open_route_service/open_route_service.dart';
 
@@ -292,6 +292,14 @@ class _MapaScreenState extends State<MapaScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.go('/paciente'),
+        ),
+      ),
       body: Stack(
         children: [
           if (isLoading)
@@ -379,7 +387,6 @@ class _MapaScreenState extends State<MapaScreen> {
                     : null,
         child: const Icon(Icons.my_location),
       ),
-      bottomNavigationBar: const BottomNavigationBarWidget(),
     );
   }
 }

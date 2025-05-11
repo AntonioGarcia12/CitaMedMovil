@@ -1,4 +1,3 @@
-// medico.dart
 import 'centro_de_salud.dart';
 import 'usuario.dart';
 
@@ -26,26 +25,42 @@ class Medico extends Usuario {
   });
 
   factory Medico.fromJson(Map<String, dynamic> json) {
+    final apellidoVal =
+        json['apellidos'] as String? ?? json['apellido'] as String? ?? '';
+    final rolVal = json['rol'] as String? ?? json['role'] as String? ?? '';
+    final numeroSS =
+        json['numeroSeguridadSocial'] as String? ??
+        json['numero_seguridad_social'] as String? ??
+        '';
+    final fechaStr =
+        json['fechaNacimiento'] as String? ??
+        json['fecha_nacimiento'] as String?;
+
     return Medico(
       especialidad: json['especialidad'] as String? ?? '',
-      centroDeSalud: json['centroDeSalud'] != null
-          ? CentroDeSalud.fromJson(
-              json['centroDeSalud'] as Map<String, dynamic>)
-          : null,
+      centroDeSalud:
+          json['centroDeSalud'] != null
+              ? CentroDeSalud.fromJson(
+                json['centroDeSalud'] as Map<String, dynamic>,
+              )
+              : null,
       id: json['id'] as int,
-      nombre: json['nombre'] as String,
-      apellido: json['apellido'] as String,
-      email: json['email'] as String,
-      contrasenya: '', // no se devuelve desde el servidor
+      nombre: json['nombre'] as String? ?? '',
+      apellido: apellidoVal,
+      email: json['email'] as String? ?? '',
+      contrasenya: '',
       telefono: json['telefono'] as String? ?? '',
       activo: json['activo'] as int? ?? 0,
-      rol: json['role'] as String? ?? '',
+      rol: rolVal,
       direccion: json['direccion'] as String? ?? '',
       dni: json['dni'] as String? ?? '',
       imagen: json['imagen'] as String? ?? '',
-      numeroSeguridadSocial: json['numeroSeguridadSocial'] as String? ?? '',
+      numeroSeguridadSocial: numeroSS,
       sexo: json['sexo'] as String? ?? '',
-      fechaNacimiento: DateTime.parse(json['fechaNacimiento'] as String),
+      fechaNacimiento:
+          fechaStr != null
+              ? DateTime.parse(fechaStr)
+              : (throw Exception('fechaNacimiento ausente para Medico')),
     );
   }
 }

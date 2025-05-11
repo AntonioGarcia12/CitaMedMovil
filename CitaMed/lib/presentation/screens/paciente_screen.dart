@@ -1,4 +1,3 @@
-import 'package:citamed/presentation/widgets/bottom_navigation_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +12,7 @@ class PacienteScreen extends StatefulWidget {
 
 class _PacienteScreenState extends State<PacienteScreen> {
   String _userName = '';
+  String _userImage = '';
 
   @override
   void initState() {
@@ -24,6 +24,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('nombre') ?? '';
+      _userImage = prefs.getString('imagen') ?? '';
     });
   }
 
@@ -31,12 +32,10 @@ class _PacienteScreenState extends State<PacienteScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
-    // ignore: unrelated_type_equality_checks
     final showGreeting =
         GoRouterState.of(context).uri.toString() == '/paciente';
 
     return Scaffold(
-      bottomNavigationBar: const BottomNavigationBarWidget(),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -48,6 +47,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
         child: SafeArea(
           child: Stack(
             children: [
+              // Background circles
               Positioned(
                 top: -50,
                 right: -50,
@@ -55,7 +55,6 @@ class _PacienteScreenState extends State<PacienteScreen> {
                   height: 200,
                   width: 200,
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -68,13 +67,13 @@ class _PacienteScreenState extends State<PacienteScreen> {
                   height: 250,
                   width: 250,
                   decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.07),
                     borderRadius: BorderRadius.circular(125),
                   ),
                 ),
               ),
 
+              // Main content
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -84,33 +83,50 @@ class _PacienteScreenState extends State<PacienteScreen> {
                         horizontal: 16,
                         vertical: 12,
                       ),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Greeting box
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              'Hola, $_userName',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: const Color(0xFF00838F),
+                                fontWeight: FontWeight.w600,
                               ),
-                            ],
-                          ),
-                          child: Text(
-                            'Hola, $_userName',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: const Color(0xFF00838F),
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ),
+                          // Profile image button
+                          GestureDetector(
+                            onTap: () => context.go('/perfilPaciente'),
+                            child: CircleAvatar(
+                              radius: 24,
+                              backgroundImage:
+                                  _userImage.isNotEmpty
+                                      ? NetworkImage(_userImage)
+                                      : const AssetImage(
+                                            'assets/imgs/imagenDefault.webp',
+                                          )
+                                          as ImageProvider,
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -129,7 +145,6 @@ class _PacienteScreenState extends State<PacienteScreen> {
                             borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
-                                // ignore: deprecated_member_use
                                 color: const Color(0xFF006064).withOpacity(0.3),
                                 blurRadius: 30,
                                 spreadRadius: 0,
@@ -196,7 +211,7 @@ class InicioWidget extends StatelessWidget {
               imagePath: 'assets/imgs/fotosDeCitasMedicas.webp',
               label: 'Pedir citas',
               onTap: () {
-                // TODO: implementar navegación
+                context.go('/citas');
               },
             ),
             _buildCardButton(

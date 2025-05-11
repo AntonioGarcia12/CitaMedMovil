@@ -1,4 +1,3 @@
-// routes.dart
 import 'package:go_router/go_router.dart';
 
 import '../../presentation/screens/screens.dart';
@@ -15,5 +14,10 @@ final appRouter = GoRouter(
       path: '/perfilPaciente',
       builder: (c, s) => const PerfilPacienteScreen(),
     ),
+    GoRoute(
+      path: '/perfilMedico',
+      builder: (c, s) => const PerfilMedicoScreen(),
+    ),
+    GoRoute(path: '/citas', builder: (c, s) => const CitaScreen()),
   ],
 );
