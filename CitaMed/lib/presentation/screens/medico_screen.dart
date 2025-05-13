@@ -53,6 +53,7 @@ class _MedicoScreenState extends State<MedicoScreen> {
                   height: 200,
                   width: 200,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -65,6 +66,7 @@ class _MedicoScreenState extends State<MedicoScreen> {
                   height: 250,
                   width: 250,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.07),
                     borderRadius: BorderRadius.circular(125),
                   ),
@@ -92,6 +94,7 @@ class _MedicoScreenState extends State<MedicoScreen> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
+                                  // ignore: deprecated_member_use
                                   color: Colors.black.withOpacity(0.1),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
@@ -138,6 +141,7 @@ class _MedicoScreenState extends State<MedicoScreen> {
                             borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: const Color(0xFF006064).withOpacity(0.3),
                                 blurRadius: 30,
                                 offset: const Offset(0, 15),
@@ -204,12 +208,21 @@ class MedicoInicioWidget extends StatelessWidget {
                 // TODO: implementar navegación
               },
             ),
+
             _buildCardButton(
               context: context,
-              imagePath: 'assets/imgs/fotoConsulta.webp',
-              label: 'Nueva consulta',
+              imagePath: 'assets/imgs/fotoHistorialClinico.webp',
+              label: 'Crear historial clínico',
               onTap: () {
                 // TODO: implementar navegación
+              },
+            ),
+            _buildCardButton(
+              context: context,
+              imagePath: 'assets/imgs/fotoCrearConsulta.webp',
+              label: 'Crear horarios',
+              onTap: () {
+                context.go('/horarios');
               },
             ),
           ],

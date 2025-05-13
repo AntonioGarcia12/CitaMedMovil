@@ -1,26 +1,50 @@
 import 'medico.dart';
 
 class HorarioMedico {
-  final int id;
-  final String dia;
-  final DateTime hora_inicio;
-  final DateTime hora_fin;
-  final Medico id_medico;
+  final int? id;
+  final DateTime dia;
+  final DateTime horaInicio;
+  final DateTime horaFin;
+  final Medico medico;
 
-  HorarioMedico(
-      {required this.id,
-      required this.dia,
-      required this.hora_inicio,
-      required this.hora_fin,
-      required this.id_medico});
+  HorarioMedico({
+    this.id,
+    required this.dia,
+    required this.horaInicio,
+    required this.horaFin,
+    required this.medico,
+  });
 
   factory HorarioMedico.fromJson(Map<String, dynamic> json) {
+    DateTime parseTime(String timeStr) {
+      if (timeStr.contains('T')) return DateTime.parse(timeStr);
+
+      final parts = timeStr.split(':');
+      if (parts.length >= 2) {
+        final now = DateTime.now();
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.tryParse(parts[0]) ?? 0,
+          int.tryParse(parts[1]) ?? 0,
+        );
+      }
+
+      throw FormatException('Formato de hora inválido: $timeStr');
+    }
+
+    Medico medico =
+        json['medico'] != null
+            ? Medico.fromJson(json['medico'] as Map<String, dynamic>)
+            : throw Exception('Campo medico ausente');
+
     return HorarioMedico(
-      id: json['id'],
-      dia: json['dia'],
-      hora_inicio: DateTime.parse(json['hora_inicio']),
-      hora_fin: DateTime.parse(json['hora_fin']),
-      id_medico: Medico.fromJson(json['id_medico']),
+      id: json['id'] as int?,
+      dia: DateTime.parse(json['dia']),
+      horaInicio: parseTime(json['horaInicio'] as String),
+      horaFin: parseTime(json['horaFin'] as String),
+      medico: medico,
     );
   }
 }

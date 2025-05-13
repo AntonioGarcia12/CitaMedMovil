@@ -19,5 +19,17 @@ final appRouter = GoRouter(
       builder: (c, s) => const PerfilMedicoScreen(),
     ),
     GoRoute(path: '/citas', builder: (c, s) => const CitaScreen()),
+    GoRoute(
+      path: '/crearHorario',
+      builder: (c, s) => const CrearHorarioMedicoScreen(),
+    ),
+    GoRoute(path: '/horarios', builder: (c, s) => const HorarioMedicoScreen()),
+    GoRoute(
+      path: '/editarHorario/:id',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return EditarHorarioMedicoScreen(id: id);
+      },
+    ),
   ],
 );
