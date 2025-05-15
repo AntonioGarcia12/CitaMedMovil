@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:citamed/config/api_config.dart';
-import 'package:citamed/infrastructures/models/historial_medico.dart';
+import 'package:CitaMed/config/api_config.dart';
+import 'package:CitaMed/infrastructures/models/historial_medico.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 

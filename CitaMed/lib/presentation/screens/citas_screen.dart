@@ -1,5 +1,5 @@
-import 'package:citamed/infrastructures/models/medico.dart';
-import 'package:citamed/services/medico_service.dart';
+import 'package:CitaMed/infrastructures/models/medico.dart';
+import 'package:CitaMed/services/medico_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

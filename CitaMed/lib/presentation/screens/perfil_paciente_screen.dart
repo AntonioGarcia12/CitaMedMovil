@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:citamed/DTO/paciente_dto.dart';
-import 'package:citamed/infrastructures/models/usuario.dart';
-import 'package:citamed/services/services.dart';
+import 'package:CitaMed/DTO/paciente_dto.dart';
+import 'package:CitaMed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';

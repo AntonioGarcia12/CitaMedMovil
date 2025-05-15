@@ -1,8 +1,8 @@
-import 'package:citamed/infrastructures/models/historial_medico.dart';
-import 'package:citamed/infrastructures/models/medico.dart';
-import 'package:citamed/infrastructures/models/usuario.dart';
-import 'package:citamed/presentation/widgets/historial_form_widget.dart';
-import 'package:citamed/services/services.dart';
+import 'package:CitaMed/infrastructures/models/historial_medico.dart';
+import 'package:CitaMed/infrastructures/models/medico.dart';
+import 'package:CitaMed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/presentation/widgets/historial_form_widget.dart';
+import 'package:CitaMed/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

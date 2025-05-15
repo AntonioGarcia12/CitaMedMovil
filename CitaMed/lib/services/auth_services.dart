@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:citamed/config/api_config.dart';
-import 'package:citamed/infrastructures/models/centro_de_salud.dart';
-import 'package:citamed/infrastructures/models/medico.dart';
-import 'package:citamed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/config/api_config.dart';
+import 'package:CitaMed/infrastructures/models/centro_de_salud.dart';
+import 'package:CitaMed/infrastructures/models/medico.dart';
+import 'package:CitaMed/infrastructures/models/usuario.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';

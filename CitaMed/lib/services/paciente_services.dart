@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:citamed/DTO/paciente_dto.dart';
-import 'package:citamed/config/api_config.dart';
-import 'package:citamed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/DTO/paciente_dto.dart';
+import 'package:CitaMed/config/api_config.dart';
+import 'package:CitaMed/infrastructures/models/usuario.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 

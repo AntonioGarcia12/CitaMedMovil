@@ -1,5 +1,5 @@
-import 'package:citamed/infrastructures/models/medico.dart';
-import 'package:citamed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/infrastructures/models/medico.dart';
+import 'package:CitaMed/infrastructures/models/usuario.dart';
 import 'package:flutter/material.dart';
 
 class HistorialFormWidget extends StatefulWidget {

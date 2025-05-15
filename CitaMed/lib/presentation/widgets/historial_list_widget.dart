@@ -1,4 +1,4 @@
-import 'package:citamed/infrastructures/models/historial_medico.dart';
+import 'package:CitaMed/infrastructures/models/historial_medico.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 

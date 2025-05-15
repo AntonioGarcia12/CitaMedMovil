@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:citamed/infrastructures/models/centro_de_salud.dart';
-import 'package:citamed/services/centro_de_salud_services.dart';
+import 'package:CitaMed/infrastructures/models/centro_de_salud.dart';
+import 'package:CitaMed/services/centro_de_salud_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';

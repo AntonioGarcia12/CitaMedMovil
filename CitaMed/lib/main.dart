@@ -1,5 +1,5 @@
-import 'package:citamed/config/routes/routes.dart';
-import 'package:citamed/config/theme/app_theme.dart';
+import 'package:CitaMed/config/routes/routes.dart';
+import 'package:CitaMed/config/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {

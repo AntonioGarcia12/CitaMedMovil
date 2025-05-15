@@ -1,6 +1,6 @@
-import 'package:citamed/infrastructures/models/horario_medico.dart';
-import 'package:citamed/presentation/widgets/horario_widget.dart';
-import 'package:citamed/services/services.dart';
+import 'package:CitaMed/infrastructures/models/horario_medico.dart';
+import 'package:CitaMed/presentation/widgets/horario_widget.dart';
+import 'package:CitaMed/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
