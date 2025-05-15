@@ -31,5 +31,21 @@ final appRouter = GoRouter(
         return EditarHorarioMedicoScreen(id: id);
       },
     ),
+    GoRoute(
+      path: '/crearHistorialMedico',
+      builder: (c, s) => const CrearHistorialMedicoScreen(),
+    ),
+    GoRoute(
+      path: '/historiales',
+      builder: (c, s) => const HistorialMedicoScreen(),
+    ),
+    GoRoute(
+      name: EditarHistorialMedicoScreen.name,
+      path: '/editarHistorial/:id',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return EditarHistorialMedicoScreen(id: id);
+      },
+    ),
   ],
 );

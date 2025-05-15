@@ -49,10 +49,7 @@ class HorarioMedicoServices {
 
     final response = await http.get(
       uri,
-      headers: {
-        'Accept': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-      },
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
     );
 
     if (response.statusCode == 200) {

@@ -188,15 +188,16 @@ class _PerfilMedicoScreenState extends State<PerfilMedicoScreen> {
                                         ),
                                         _buildReadOnlyField(
                                           'Apellidos',
-                                          _medico!.apellido,
+                                          _medico!.apellidos,
                                         ),
                                         _buildReadOnlyField(
                                           'DNI',
-                                          _medico!.dni,
+                                          _medico!.dni ?? 'N/A',
                                         ),
                                         _buildReadOnlyField(
                                           'Nº Seguridad Social',
-                                          _medico!.numeroSeguridadSocial,
+                                          _medico!.numeroSeguridadSocial ??
+                                              'N/A',
                                         ),
                                         _buildReadOnlyField(
                                           'Especialidad',

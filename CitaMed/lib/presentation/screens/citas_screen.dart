@@ -308,7 +308,7 @@ class _CitaScreenState extends State<CitaScreen> {
                                                                     as ImageProvider,
                                                       ),
                                                       title: Text(
-                                                        '${medico.nombre} ${medico.apellido}',
+                                                        '${medico.nombre} ${medico.apellidos}',
                                                         style: theme
                                                             .textTheme
                                                             .bodyLarge

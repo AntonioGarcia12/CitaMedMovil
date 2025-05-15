@@ -39,8 +39,8 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
       final usuario = await _pacienteService.listarUnPaciente(id);
       setState(() {
         _usuario = usuario;
-        _telefonoController.text = usuario.telefono;
-        _direccionController.text = usuario.direccion;
+        _telefonoController.text = usuario.telefono!;
+        _direccionController.text = usuario.direccion!;
       });
     }
   }
@@ -294,7 +294,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                           ),
                                           _buildReadOnlyField(
                                             'Apellidos',
-                                            _usuario!.apellido,
+                                            _usuario!.apellidos,
                                           ),
                                           _buildReadOnlyField(
                                             'Correo electrónico',
@@ -302,20 +302,20 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                           ),
                                           _buildReadOnlyField(
                                             'DNI',
-                                            _usuario!.dni,
+                                            _usuario!.dni ?? 'N/A',
                                           ),
                                           _buildReadOnlyField(
                                             'Nº Seguridad Social',
-                                            _usuario!.numeroSeguridadSocial,
+                                            _usuario!.numeroSeguridadSocial ??
+                                                'N/A',
                                           ),
                                           _buildReadOnlyField(
                                             'Sexo',
-                                            _usuario!.sexo,
+                                            _usuario!.sexo ?? 'N/A',
                                           ),
                                           _buildReadOnlyField(
                                             'Fecha de nacimiento',
                                             _usuario!.fechaNacimiento
-                                                .toLocal()
                                                 .toString()
                                                 .split(' ')[0],
                                           ),

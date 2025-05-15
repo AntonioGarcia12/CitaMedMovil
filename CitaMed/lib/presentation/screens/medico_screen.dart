@@ -214,7 +214,7 @@ class MedicoInicioWidget extends StatelessWidget {
               imagePath: 'assets/imgs/fotoHistorialClinico.webp',
               label: 'Crear historial clínico',
               onTap: () {
-                // TODO: implementar navegación
+                context.go('/historiales');
               },
             ),
             _buildCardButton(

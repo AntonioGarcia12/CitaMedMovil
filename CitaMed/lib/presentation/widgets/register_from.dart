@@ -62,7 +62,7 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Future<void> _registrar() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_usuario.sexo.isEmpty) {
+    if (_usuario.sexo == null) {
       return;
     }
     _formKey.currentState!.save();
@@ -104,6 +104,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   horizontal: 24.0,
                 ),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -147,7 +148,7 @@ class _RegisterFormState extends State<RegisterForm> {
               Expanded(
                 child: _buildCampoTexto(
                   'Apellidos',
-                  (val) => _usuario.apellido = val!,
+                  (val) => _usuario.apellidos = val!,
                 ),
               ),
             ],

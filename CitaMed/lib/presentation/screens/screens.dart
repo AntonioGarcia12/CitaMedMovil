@@ -1,6 +1,9 @@
 export 'package:citamed/presentation/screens/citas_screen.dart';
+export 'package:citamed/presentation/screens/crear_historial_medico_screen.dart';
 export 'package:citamed/presentation/screens/crear_horario_medico_screen.dart';
+export 'package:citamed/presentation/screens/editar_historial_medico_screen.dart';
 export 'package:citamed/presentation/screens/editar_horario_medico_screen.dart';
+export 'package:citamed/presentation/screens/historial_medico_screen.dart';
 export 'package:citamed/presentation/screens/horario_medico_screen.dart';
 export 'package:citamed/presentation/screens/login_screen.dart';
 export 'package:citamed/presentation/screens/mapa_screen.dart';

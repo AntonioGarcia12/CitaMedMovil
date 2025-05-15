@@ -34,7 +34,7 @@ class AuthService {
 
     final id = data["id"] as int;
     final nombre = data["nombre"] as String? ?? '';
-    final apellido = data["apellido"] as String? ?? '';
+    final apellidos = data["apellidos"] as String? ?? '';
     final emailResp = data["email"] as String? ?? '';
     final telefono = data["telefono"] as String? ?? '';
     final activo = data["activo"] as int? ?? 0;
@@ -65,7 +65,7 @@ class AuthService {
                 : null,
         id: id,
         nombre: nombre,
-        apellido: apellido,
+        apellidos: apellidos,
         email: emailResp,
         contrasenya: contrasenya,
         telefono: telefono,
@@ -83,7 +83,7 @@ class AuthService {
     return Usuario(
       id: id,
       nombre: nombre,
-      apellido: apellido,
+      apellidos: apellidos,
       email: emailResp,
       contrasenya: contrasenya,
       telefono: telefono,
@@ -106,19 +106,19 @@ class AuthService {
     final request = http.MultipartRequest('POST', uri);
     final fechaFormateada = DateFormat(
       'yyyy-MM-dd',
-    ).format(usuario.fechaNacimiento);
+    ).format(usuario.fechaNacimiento ?? DateTime.now());
 
     request.fields.addAll({
       'nombre': usuario.nombre,
-      'apellidos': usuario.apellido,
+      'apellidos': usuario.apellidos,
       'email': usuario.email,
       'contrasenya': usuario.contrasenya ?? '',
-      'telefono': usuario.telefono,
+      'telefono': usuario.telefono ?? '',
       'rol': usuario.rol,
-      'direccion': usuario.direccion,
-      'dni': usuario.dni,
-      'numeroSeguridadSocial': usuario.numeroSeguridadSocial,
-      'sexo': usuario.sexo,
+      'direccion': usuario.direccion ?? '',
+      'dni': usuario.dni ?? '',
+      'numeroSeguridadSocial': usuario.numeroSeguridadSocial ?? '',
+      'sexo': usuario.sexo ?? '',
       'fechaNacimiento': fechaFormateada,
     });
 
@@ -150,7 +150,7 @@ class AuthService {
       final patchedData = <String, dynamic>{
         'id': data['id'] ?? usuario.id,
         'nombre': data['nombre'] ?? usuario.nombre,
-        'apellido': data['apellido'] ?? usuario.apellido,
+        'apellidos': data['apellidos'] ?? usuario.apellidos,
         'email': data['email'] ?? usuario.email,
         'contrasenya': usuario.contrasenya,
         'telefono': data['telefono'] ?? usuario.telefono,
@@ -175,9 +175,8 @@ class AuthService {
         try {
           final error = jsonDecode(rawBody) as Map<String, dynamic>;
           mensaje = error['mensaje'] ?? mensaje;
-        } catch (e) {
-          print('Error parseando JSON de error: $e');
-        }
+          // ignore: empty_catches
+        } catch (e) {}
       }
       throw Exception('Registro fallido: $mensaje');
     }
