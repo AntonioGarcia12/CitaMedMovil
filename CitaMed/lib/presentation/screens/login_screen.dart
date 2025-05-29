@@ -50,7 +50,6 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
 
-              // Contenido principal
               Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(

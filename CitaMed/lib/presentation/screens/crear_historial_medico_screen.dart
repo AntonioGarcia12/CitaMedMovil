@@ -1,7 +1,9 @@
 import 'package:CitaMed/infrastructures/models/historial_medico.dart';
 import 'package:CitaMed/infrastructures/models/medico.dart';
 import 'package:CitaMed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,15 +14,16 @@ class CrearHistorialMedicoScreen extends StatefulWidget {
 
   @override
   State<CrearHistorialMedicoScreen> createState() =>
-      _CrearHistorialMedicoScreen();
+      _CrearHistorialMedicoScreenState();
 }
 
-class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
+class _CrearHistorialMedicoScreenState
+    extends State<CrearHistorialMedicoScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _diagnosticoController = TextEditingController();
-  final TextEditingController _tratamientoController = TextEditingController();
-  final HistorialMedicoServices _historialService = HistorialMedicoServices();
-  final MedicoService _medicoService = MedicoService();
+  final _diagnosticoController = TextEditingController();
+  final _tratamientoController = TextEditingController();
+  final _historialService = HistorialMedicoServices();
+  final _medicoService = MedicoService();
 
   Medico? _medico;
   List<Usuario> _pacientes = [];
@@ -42,7 +45,7 @@ class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
     final prefs = await SharedPreferences.getInstance();
     final id = prefs.getInt('id');
     if (id != null) {
-      final medico = await MedicoService().listarUnMedico(id);
+      final medico = await _medicoService.listarUnMedico(id);
       setState(() => _medico = medico);
     }
   }
@@ -52,18 +55,15 @@ class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
       final pacientes = await _medicoService.obtenerPacientes();
       setState(() => _pacientes = pacientes);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error cargando pacientes: $e')));
+      mostrarError(context, 'Error al cargar pacientes: $e');
     }
   }
 
   Future<void> _guardarHistorial() async {
     if (!_formKey.currentState!.validate() ||
         _medico == null ||
-        _pacienteSeleccionado == null) {
+        _pacienteSeleccionado == null)
       return;
-    }
 
     final historial = HistorialMedico(
       medico: _medico!,
@@ -75,14 +75,10 @@ class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
     setState(() => _isLoading = true);
     try {
       await _historialService.crearHistorialMedico(historial);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Historial creado exitosamente')),
-      );
+      mostrarExito(context, 'Historial médico creado con éxito');
       context.go('/historiales');
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      mostrarError(context, 'Error al crear historial: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -98,7 +94,6 @@ class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -112,60 +107,15 @@ class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              Positioned(
-                top: -50,
-                right: -50,
-                child: Container(
-                  height: 200,
-                  width: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -100,
-                left: -50,
-                child: Container(
-                  height: 250,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.07),
-                    borderRadius: BorderRadius.circular(125),
-                  ),
-                ),
-              ),
+              buildBackgroundDecorations(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => context.go('/historiales'),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'Crear Historial Médico',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 56),
-                      ],
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: CustomAppBarWidget(
+                      title: 'Crear Historial Médico',
+                      onBackPressed: () => context.go('/historiales'),
                     ),
                   ),
                   Expanded(
@@ -175,177 +125,136 @@ class _CrearHistorialMedicoScreen extends State<CrearHistorialMedicoScreen> {
                           horizontal: 24,
                           vertical: 16,
                         ),
-                        child: Container(
-                          width: min(size.width * 0.95, 500),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child:
-                                _medico == null
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                    : Form(
-                                      key: _formKey,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Datos del Historial',
-                                            style: theme.textTheme.titleMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: const Color(
-                                                    0xFF00838F,
-                                                  ),
-                                                ),
-                                          ),
-                                          const SizedBox(height: 20),
-                                          DropdownButtonFormField<Usuario>(
-                                            value: _pacienteSeleccionado,
-                                            items:
-                                                _pacientes
-                                                    .map(
-                                                      (
-                                                        paciente,
-                                                      ) => DropdownMenuItem(
-                                                        value: paciente,
-                                                        child: Text(
-                                                          '${paciente.nombre} ${paciente.apellidos}',
-                                                        ),
-                                                      ),
-                                                    )
-                                                    .toList(),
-                                            onChanged:
-                                                (value) => setState(
-                                                  () =>
-                                                      _pacienteSeleccionado =
-                                                          value,
-                                                ),
-                                            decoration: InputDecoration(
-                                              labelText: 'Seleccionar Paciente',
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.grey.shade50,
-                                              prefixIcon: const Icon(
-                                                Icons.person,
-                                                color: Color(0xFF00838F),
-                                              ),
-                                            ),
-                                            validator:
-                                                (value) =>
-                                                    value == null
-                                                        ? 'Seleccione un paciente'
-                                                        : null,
-                                          ),
-                                          const SizedBox(height: 20),
-                                          TextFormField(
-                                            controller: _diagnosticoController,
-                                            decoration: InputDecoration(
-                                              labelText: 'Diagnóstico',
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.grey.shade50,
-                                              prefixIcon: const Icon(
-                                                Icons.medical_information,
-                                                color: Color(0xFF00838F),
-                                              ),
-                                            ),
-                                            validator:
-                                                (value) =>
-                                                    value == null ||
-                                                            value.isEmpty
-                                                        ? 'El diagnóstico es requerido'
-                                                        : null,
-                                            maxLines: 3,
-                                          ),
-                                          const SizedBox(height: 20),
-                                          TextFormField(
-                                            controller: _tratamientoController,
-                                            decoration: InputDecoration(
-                                              labelText: 'Tratamiento',
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.grey.shade50,
-                                              prefixIcon: const Icon(
-                                                Icons.healing,
-                                                color: Color(0xFF00838F),
-                                              ),
-                                            ),
-                                            validator:
-                                                (value) =>
-                                                    value == null ||
-                                                            value.isEmpty
-                                                        ? 'El tratamiento es requerido'
-                                                        : null,
-                                            maxLines: 3,
-                                          ),
-                                          const SizedBox(height: 30),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: ElevatedButton.icon(
-                                              onPressed:
-                                                  _isLoading
-                                                      ? null
-                                                      : _guardarHistorial,
-                                              icon: const Icon(Icons.save),
-                                              label: Text(
-                                                _isLoading
-                                                    ? 'Guardando...'
-                                                    : 'Guardar Historial',
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(
-                                                  0xFF00838F,
-                                                ),
-                                                foregroundColor: Colors.white,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 16,
-                                                    ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                elevation: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                          ),
-                        ),
+                        child: _buildFormulario(size),
                       ),
                     ),
                   ),
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormulario(Size size) {
+    if (_medico == null) {
+      return const CircularProgressIndicator();
+    }
+
+    return Container(
+      width: min(size.width * 0.95, 500),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Datos del Historial',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF00838F),
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildDropdownPacientes(),
+              const SizedBox(height: 20),
+              _buildTextFormField(
+                controller: _diagnosticoController,
+                label: 'Diagnóstico',
+                icon: Icons.medical_information,
+                validatorMessage: 'El diagnóstico es requerido',
+              ),
+              const SizedBox(height: 20),
+              _buildTextFormField(
+                controller: _tratamientoController,
+                label: 'Tratamiento',
+                icon: Icons.healing,
+                validatorMessage: 'El tratamiento es requerido',
+              ),
+              const SizedBox(height: 30),
+              _buildGuardarButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownPacientes() {
+    return DropdownButtonFormField<Usuario>(
+      value: _pacienteSeleccionado,
+      items:
+          _pacientes
+              .map(
+                (paciente) => DropdownMenuItem(
+                  value: paciente,
+                  child: Text('${paciente.nombre} ${paciente.apellidos}'),
+                ),
+              )
+              .toList(),
+      onChanged: (value) => setState(() => _pacienteSeleccionado = value),
+      decoration: InputDecoration(
+        labelText: 'Seleccionar Paciente',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        prefixIcon: const Icon(Icons.person, color: Color(0xFF00838F)),
+      ),
+      validator: (value) => value == null ? 'Seleccione un paciente' : null,
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required String validatorMessage,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: 3,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        prefixIcon: Icon(icon, color: const Color(0xFF00838F)),
+      ),
+      validator:
+          (value) => value == null || value.isEmpty ? validatorMessage : null,
+    );
+  }
+
+  Widget _buildGuardarButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _isLoading ? null : _guardarHistorial,
+        label: Text(
+          _isLoading ? 'Guardando...' : 'Guardar Historial',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF00838F),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

@@ -1,7 +1,9 @@
 import 'package:CitaMed/infrastructures/models/horario_medico.dart';
 import 'package:CitaMed/infrastructures/models/medico.dart';
+import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 import 'package:CitaMed/presentation/widgets/horario_form_widget.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -44,9 +46,7 @@ class _EditarHorarioMedicoScreenState extends State<EditarHorarioMedicoScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al cargar el horario: $e')));
+      mostrarError(context, 'Error al cargar el horario: $e');
       context.go('/horarios');
     }
   }
@@ -69,14 +69,10 @@ class _EditarHorarioMedicoScreenState extends State<EditarHorarioMedicoScreen> {
     setState(() => _saving = true);
     try {
       await _horarioService.editarHorario(_horario!.id!, horarioActualizado);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Horario actualizado exitosamente')),
-      );
+      mostrarExito(context, 'Horario actualizado con éxito');
       context.go('/horarios');
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      mostrarError(context, 'Error al actualizar el horario: $e');
     } finally {
       setState(() => _saving = false);
     }
@@ -85,7 +81,6 @@ class _EditarHorarioMedicoScreenState extends State<EditarHorarioMedicoScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -133,28 +128,11 @@ class _EditarHorarioMedicoScreenState extends State<EditarHorarioMedicoScreen> {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => context.go('/horarios'),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'Editar Horario',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 56),
-                      ],
+                    child: CustomAppBarWidget(
+                      title: 'Editar Horario',
+                      onBackPressed: () {
+                        context.go('/horarios');
+                      },
                     ),
                   ),
                   Expanded(

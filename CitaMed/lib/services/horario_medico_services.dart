@@ -49,18 +49,63 @@ class HorarioMedicoServices {
 
     final response = await http.get(
       uri,
-      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
     );
 
     if (response.statusCode == 200) {
       final bodyMap = json.decode(response.body) as Map<String, dynamic>;
       final list = bodyMap['data'] as List<dynamic>? ?? [];
-      return list
-          .map((e) => HorarioMedico.fromJson(e as Map<String, dynamic>))
-          .toList();
+
+      final todos =
+          list
+              .map((e) => HorarioMedico.fromJson(e as Map<String, dynamic>))
+              .toList();
+
+      final now = DateTime.now();
+
+      final futuros =
+          todos.where((h) {
+            final inicioCompleto = DateTime(
+              h.dia.year,
+              h.dia.month,
+              h.dia.day,
+              h.horaInicio.hour,
+              h.horaInicio.minute,
+              h.horaInicio.second,
+            );
+
+            return inicioCompleto.isAtSameMomentAs(now) ||
+                inicioCompleto.isAfter(now);
+          }).toList();
+
+      futuros.sort((a, b) {
+        final inicioA = DateTime(
+          a.dia.year,
+          a.dia.month,
+          a.dia.day,
+          a.horaInicio.hour,
+          a.horaInicio.minute,
+          a.horaInicio.second,
+        );
+        final inicioB = DateTime(
+          b.dia.year,
+          b.dia.month,
+          b.dia.day,
+          b.horaInicio.hour,
+          b.horaInicio.minute,
+          b.horaInicio.second,
+        );
+        return inicioA.compareTo(inicioB);
+      });
+
+      return futuros;
     } else {
       final msg = _extractError(response);
-      throw Exception('Error al obtener horarios: $msg');
+      throw Exception('$msg');
     }
   }
 
@@ -70,7 +115,6 @@ class HorarioMedicoServices {
     final uri = Uri.parse('${ApiConfig.baseUrl}/medico/editarHorario/$id');
 
     final payload = {
-      'medico': {'id': horario.medico.id},
       'dia': DateFormat('yyyy-MM-dd').format(horario.dia),
       'horaInicio': DateFormat('HH:mm').format(horario.horaInicio),
       'horaFin': DateFormat('HH:mm').format(horario.horaFin),
@@ -87,10 +131,11 @@ class HorarioMedicoServices {
     );
 
     if (response.statusCode == 200) {
-      final bodyMap = json.decode(response.body) as Map<String, dynamic>;
-      return HorarioMedico.fromJson(bodyMap['data'] as Map<String, dynamic>);
+      final map = json.decode(response.body) as Map<String, dynamic>;
+      return HorarioMedico.fromJson(map['data'] as Map<String, dynamic>);
     } else {
       final msg = _extractError(response);
+      print('Error: $msg');
       throw Exception('Error al editar horario: $msg');
     }
   }
@@ -142,6 +187,4 @@ class HorarioMedicoServices {
       return 'Código ${response.statusCode}';
     }
   }
-
-  obtenerHorarioMedico(int horarioId) {}
 }

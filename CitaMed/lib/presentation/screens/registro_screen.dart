@@ -24,7 +24,6 @@ class RegisterScreen extends StatelessWidget {
         child: SafeArea(
           child: Stack(
             children: [
-              // Elementos decorativos
               Positioned(
                 top: -100,
                 left: -80,
@@ -32,6 +31,7 @@ class RegisterScreen extends StatelessWidget {
                   height: 220,
                   width: 220,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(110),
                   ),
@@ -44,13 +44,12 @@ class RegisterScreen extends StatelessWidget {
                   height: 180,
                   width: 180,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(90),
                   ),
                 ),
               ),
-
-              // Contenido principal
               Align(
                 alignment: Alignment.topCenter,
                 child: SingleChildScrollView(
@@ -74,6 +73,7 @@ class RegisterScreen extends StatelessWidget {
                                 size: 22,
                               ),
                               style: IconButton.styleFrom(
+                                // ignore: deprecated_member_use
                                 backgroundColor: Colors.white.withOpacity(0.15),
                                 padding: const EdgeInsets.all(12),
                               ),
@@ -86,7 +86,6 @@ class RegisterScreen extends StatelessWidget {
                                 height: 50,
                               ),
                             ),
-                            // Espacio para equilibrar
                             const SizedBox(width: 48),
                           ],
                         ),
@@ -94,7 +93,6 @@ class RegisterScreen extends StatelessWidget {
 
                       const SizedBox(height: 12),
 
-                      // Textos de encabezado
                       Text(
                         'Crear una cuenta',
                         style: theme.textTheme.headlineSmall?.copyWith(
@@ -107,6 +105,7 @@ class RegisterScreen extends StatelessWidget {
                       Text(
                         'Completa tus datos para registrarte como paciente',
                         style: TextStyle(
+                          // ignore: deprecated_member_use
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 16,
                         ),
@@ -115,7 +114,6 @@ class RegisterScreen extends StatelessWidget {
 
                       const SizedBox(height: 32),
 
-                      // Tarjeta del formulario
                       ConstrainedBox(
                         constraints: BoxConstraints(
                           maxWidth: min(550, size.width - 32),
@@ -127,6 +125,7 @@ class RegisterScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: const Color(0xFF006064).withOpacity(0.3),
                                 blurRadius: 30,
                                 spreadRadius: 0,
@@ -137,12 +136,8 @@ class RegisterScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // Formulario de registro
                               const RegisterForm(),
-
                               const SizedBox(height: 24),
-
-                              // Enlace para iniciar sesión
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

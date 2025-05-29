@@ -53,6 +53,7 @@ class AuthService {
     await prefs.setInt('id', id);
     await prefs.setString('rol', rol);
     await prefs.setString('imagen', imagen);
+    await prefs.setString('sexo', sexo);
 
     if (rol == 'MEDICO') {
       return Medico(

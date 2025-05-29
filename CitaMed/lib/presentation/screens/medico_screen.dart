@@ -1,3 +1,4 @@
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,7 @@ class MedicoScreen extends StatefulWidget {
 class _MedicoScreenState extends State<MedicoScreen> {
   String _userName = '';
   String _userImage = '';
+  String _sexo = '';
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _MedicoScreenState extends State<MedicoScreen> {
     setState(() {
       _userName = prefs.getString('nombre') ?? '';
       _userImage = prefs.getString('imagen') ?? '';
+      _sexo = prefs.getString('sexo') ?? '';
     });
   }
 
@@ -102,7 +105,9 @@ class _MedicoScreenState extends State<MedicoScreen> {
                               ],
                             ),
                             child: Text(
-                              'Hola, Dr. $_userName',
+                              _sexo == 'Hombre'
+                                  ? 'Hola Dr. $_userName'
+                                  : 'Hola Dra. $_userName',
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: const Color(0xFF00838F),
                                 fontWeight: FontWeight.w600,
@@ -200,27 +205,27 @@ class MedicoInicioWidget extends StatelessWidget {
           runSpacing: 16,
           alignment: WrapAlignment.center,
           children: [
-            _buildCardButton(
+            buildCardButton(
               context: context,
               imagePath: 'assets/imgs/fotoAgenda.webp',
               label: 'Mi agenda',
               onTap: () {
-                // TODO: implementar navegación
+                context.go('/citasMedico');
               },
             ),
 
-            _buildCardButton(
+            buildCardButton(
               context: context,
               imagePath: 'assets/imgs/fotoHistorialClinico.webp',
-              label: 'Crear historial clínico',
+              label: 'Historial clínico de pacientes',
               onTap: () {
                 context.go('/historiales');
               },
             ),
-            _buildCardButton(
+            buildCardButton(
               context: context,
               imagePath: 'assets/imgs/fotoCrearConsulta.webp',
-              label: 'Crear horarios',
+              label: 'Horarios',
               onTap: () {
                 context.go('/horarios');
               },
@@ -228,62 +233,6 @@ class MedicoInicioWidget extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildCardButton({
-    required BuildContext context,
-    required String imagePath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOut,
-        margin: const EdgeInsets.only(bottom: 16),
-        width: double.infinity,
-        height: 120,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          image: DecorationImage(
-            image: AssetImage(imagePath),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.25),
-              BlendMode.darken,
-            ),
-          ),
-        ),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-            ),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

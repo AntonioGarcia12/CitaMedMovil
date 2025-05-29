@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:CitaMed/DTO/paciente_dto.dart';
 import 'package:CitaMed/infrastructures/models/usuario.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PerfilPacienteScreen extends StatefulWidget {
@@ -22,7 +24,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
   Usuario? _usuario;
   File? _imagenSeleccionada;
   bool _isLoading = false;
-
+  final DateFormat _dateFormat = DateFormat('dd-MM-yyyy');
   final _telefonoController = TextEditingController();
   final _direccionController = TextEditingController();
 
@@ -91,14 +93,10 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
 
         setState(() => _usuario = actualizado);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Datos actualizados correctamente')),
-        );
+        mostrarExito(context, 'Perfil actualizado');
         context.go('/paciente');
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: \$e')));
+        mostrarError(context, 'Error al actualizar el perfil');
       } finally {
         setState(() => _isLoading = false);
       }
@@ -288,36 +286,38 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                             ),
                                           ),
                                           const SizedBox(height: 24),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'Nombre',
                                             _usuario!.nombre,
                                           ),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'Apellidos',
                                             _usuario!.apellidos,
                                           ),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'Correo electrónico',
                                             _usuario!.email,
                                           ),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'DNI',
                                             _usuario!.dni ?? 'N/A',
                                           ),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'Nº Seguridad Social',
                                             _usuario!.numeroSeguridadSocial ??
                                                 'N/A',
                                           ),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'Sexo',
                                             _usuario!.sexo ?? 'N/A',
                                           ),
-                                          _buildReadOnlyField(
+                                          buildReadOnlyField(
                                             'Fecha de nacimiento',
-                                            _usuario!.fechaNacimiento
-                                                .toString()
-                                                .split(' ')[0],
+                                            _usuario!.fechaNacimiento != null
+                                                ? _dateFormat.format(
+                                                  _usuario!.fechaNacimiento!,
+                                                )
+                                                : 'N/A',
                                           ),
                                           const SizedBox(height: 16),
                                           TextFormField(
@@ -402,28 +402,4 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
   }
 
   double min(double a, double b) => a < b ? a : b;
-
-  Widget _buildReadOnlyField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
-          ),
-        ],
-      ),
-    );
-  }
 }

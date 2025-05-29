@@ -1,7 +1,9 @@
 import 'package:CitaMed/infrastructures/models/horario_medico.dart';
 import 'package:CitaMed/infrastructures/models/medico.dart';
+import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 import 'package:CitaMed/presentation/widgets/horario_form_widget.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,14 +53,10 @@ class _CrearHorarioMedicoScreen extends State<CrearHorarioMedicoScreen> {
     setState(() => _isLoading = true);
     try {
       await _horarioService.crearHorarioMedico(horario);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Horario creado exitosamente')),
-      );
+      mostrarExito(context, 'Horario creado exitosamente');
       context.go('/horarios');
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      mostrarError(context, 'Error al crear el horario: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -67,7 +65,6 @@ class _CrearHorarioMedicoScreen extends State<CrearHorarioMedicoScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -113,28 +110,9 @@ class _CrearHorarioMedicoScreen extends State<CrearHorarioMedicoScreen> {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => context.go('/horarios'),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'Crear Horario',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 56),
-                      ],
+                    child: CustomAppBarWidget(
+                      title: 'Crear Horario Médico',
+                      onBackPressed: () => context.go('/medico'),
                     ),
                   ),
                   Expanded(

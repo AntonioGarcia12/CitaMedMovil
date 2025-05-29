@@ -47,5 +47,30 @@ final appRouter = GoRouter(
         return EditarHistorialMedicoScreen(id: id);
       },
     ),
+    GoRoute(
+      name: DetalleCitaScreen.name,
+      path: '/detalleCita/:id',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return DetalleCitaScreen(medicoId: id);
+      },
+    ),
+    GoRoute(
+      name: CitaPacienteScreen.name,
+      path: '/citasPaciente/:id',
+      builder: (c, s) {
+        final id = int.parse(s.pathParameters['id']!);
+        return CitaPacienteScreen(id: id);
+      },
+    ),
+    GoRoute(path: '/citasMedico', builder: (c, s) => const CitasMedicoScreen()),
+    GoRoute(
+      name: EditarCitaScreen.name,
+      path: '/editarCita/:id',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return EditarCitaScreen(id: id);
+      },
+    ),
   ],
 );

@@ -10,7 +10,7 @@ class MedicoService {
   Future<Medico> listarUnMedico(int id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    final uri = Uri.parse('${ApiConfig.baseUrl}/medico/listarUnMedico/$id');
+    final uri = Uri.parse('${ApiConfig.baseUrl}/medico/listarMedico/$id');
 
     final response = await http.get(
       uri,

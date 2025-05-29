@@ -1,6 +1,8 @@
 import 'package:CitaMed/infrastructures/models/historial_medico.dart';
+import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 import 'package:CitaMed/presentation/widgets/historial_list_widget.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,19 +16,18 @@ class HistorialMedicoScreen extends StatefulWidget {
 
 class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
   final HistorialMedicoServices _servicio = HistorialMedicoServices();
-  List<HistorialMedico> _historiales = [];
-  List<HistorialMedico> _historialesFiltrados = [];
-  bool _isLoading = true;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+
+  List<HistorialMedico> _historiales = [];
+  List<HistorialMedico> _filtrados = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _cargarHistoriales();
-    _searchController.addListener(() {
-      _filtrarHistoriales();
-    });
+    _searchController.addListener(_filtrarHistoriales);
   }
 
   @override
@@ -36,64 +37,51 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
     super.dispose();
   }
 
-  void _filtrarHistoriales() {
-    final query = _searchController.text.toLowerCase().trim();
-
-    if (query.isEmpty) {
-      setState(() {
-        _historialesFiltrados = List.from(_historiales);
-      });
-      return;
-    }
-
-    setState(() {
-      _historialesFiltrados =
-          _historiales.where((historial) {
-            final nombreCompleto =
-                '${historial.paciente.nombre} ${historial.paciente.apellidos}'
-                    .toLowerCase();
-            final dni = historial.paciente.dni?.toLowerCase();
-
-            return nombreCompleto.contains(query) ||
-                (dni?.contains(query) ?? false);
-          }).toList();
-    });
-  }
-
   Future<void> _cargarHistoriales() async {
     setState(() => _isLoading = true);
     try {
       final list = await _servicio.obtenerHistorialesMedicos();
       setState(() {
         _historiales = list;
-        _historialesFiltrados = List.from(list);
+        _filtrados = List.from(list);
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar historiales: $e')),
-      );
+      mostrarError(context, 'Error al cargar historiales: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
-    setState(() => _isLoading = false);
+  }
+
+  void _filtrarHistoriales() {
+    final query = _searchController.text.toLowerCase().trim();
+    if (query.isEmpty) {
+      setState(() => _filtrados = List.from(_historiales));
+      return;
+    }
+
+    setState(() {
+      _filtrados =
+          _historiales.where((h) {
+            final nombre =
+                '${h.paciente.nombre} ${h.paciente.apellidos}'.toLowerCase();
+            final dni = h.paciente.dni?.toLowerCase() ?? '';
+            return nombre.contains(query) || dni.contains(query);
+          }).toList();
+    });
   }
 
   Future<void> _borrarHistorial(int id) async {
     try {
       await _servicio.borrarhistorial(id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Historial eliminado correctamente')),
-      );
+      mostrarExito(context, 'Historial eliminado correctamente');
       await _cargarHistoriales();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al borrar historial: $e')));
+      mostrarError(context, 'Error al borrar historial: $e');
     }
   }
 
-  void _editarHistorial(int pacienteId) {
-    context.go('/editarHistorial/$pacienteId');
-  }
-
+  void _editarHistorial(int pacienteId) =>
+      context.go('/editarHistorial/$pacienteId');
   void _limpiarBusqueda() {
     _searchController.clear();
     _searchFocusNode.unfocus();
@@ -101,10 +89,15 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go('/crearHistorialMedico'),
+        backgroundColor: const Color(0xFF00838F),
+        child: const Icon(Icons.add),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -114,233 +107,106 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
           ),
         ),
         child: SafeArea(
-          child: Stack(
+          child: Column(
             children: [
-              Positioned(
-                top: -50,
-                right: -50,
-                child: Container(
-                  height: 200,
-                  width: 200,
-                  decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
+              CustomAppBarWidget(
+                title: 'Historiales Médicos',
+                onBackPressed: () => context.go('/medico'),
               ),
-              Positioned(
-                bottom: -100,
-                left: -50,
-                child: Container(
-                  height: 250,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    // ignore: deprecated_member_use
-                    color: Colors.white.withOpacity(0.07),
-                    borderRadius: BorderRadius.circular(125),
-                  ),
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              color: Color(0xFF00838F),
-                            ),
-                            onPressed: () => context.go('/medico'),
-                          ),
+              _buildSearchBar(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    width: size.width > 500 ? 500 : double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF006064).withOpacity(0.3),
+                          blurRadius: 30,
+                          offset: const Offset(0, 15),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  // ignore: deprecated_member_use
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              'Historiales Médicos',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                color: const Color(0xFF00838F),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
                       ],
                     ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            // ignore: deprecated_member_use
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        decoration: InputDecoration(
-                          hintText: 'Buscar por nombre o DNI',
-                          prefixIcon: const Icon(
-                            Icons.search,
-                            color: Color(0xFF00838F),
-                          ),
-                          suffixIcon:
-                              _searchController.text.isNotEmpty
-                                  ? IconButton(
-                                    icon: const Icon(
-                                      Icons.clear,
-                                      color: Color(0xFF00838F),
-                                    ),
-                                    onPressed: _limpiarBusqueda,
-                                  )
-                                  : null,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 15,
-                          ),
-                        ),
-                        textInputAction: TextInputAction.search,
-                        onChanged: (_) => _filtrarHistoriales(),
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: _buildContent(theme),
                     ),
                   ),
-
-                  // Contenido principal
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0,
-                          vertical: 16.0,
-                        ),
-                        child: Container(
-                          width: min(size.width * 0.95, 500),
-                          margin: const EdgeInsets.only(bottom: 24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: const Color(0xFF006064).withOpacity(0.3),
-                                blurRadius: 30,
-                                offset: const Offset(0, 15),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child:
-                                _isLoading
-                                    ? const Center(
-                                      child: CircularProgressIndicator(
-                                        color: Color(0xFF00838F),
-                                      ),
-                                    )
-                                    : _historiales.isEmpty
-                                    ? _buildEmptyState()
-                                    : _historialesFiltrados.isEmpty
-                                    ? _buildNoResultsFound()
-                                    : HistorialListWidget(
-                                      historiales: _historialesFiltrados,
-                                      onDelete: _borrarHistorial,
-                                      onEdit: _editarHistorial,
-                                    ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/crearHistorialMedico'),
-        backgroundColor: const Color(0xFF00838F),
-        elevation: 4,
-        child: const Icon(Icons.add, color: Colors.white),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        decoration: InputDecoration(
+          hintText: 'Buscar por nombre o DNI',
+          filled: true,
+          fillColor: Colors.white,
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF00838F)),
+          suffixIcon:
+              _searchController.text.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear, color: Color(0xFF00838F)),
+                    onPressed: _limpiarBusqueda,
+                  )
+                  : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        textInputAction: TextInputAction.search,
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildContent(ThemeData theme) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF00838F)),
+      );
+    } else if (_historiales.isEmpty) {
+      return _buildEmptyState(theme);
+    } else if (_filtrados.isEmpty) {
+      return _buildNoResultsFound(theme);
+    } else {
+      return HistorialListWidget(
+        historiales: _filtrados,
+        onDelete: _borrarHistorial,
+        onEdit: _editarHistorial,
+      );
+    }
+  }
+
+  Widget _buildEmptyState(ThemeData theme) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Icon(
           Icons.medical_information_outlined,
-          size: 80,
+          size: 64,
           color: Color(0xFF00838F),
         ),
-        const SizedBox(height: 16),
-        Text(
-          'No hay historiales médicos',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF00838F),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        const SizedBox(height: 12),
+        Text('No hay historiales médicos', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         Text(
-          'Crea un nuevo historial médico para tus pacientes',
-          textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          'Crea un nuevo historial para tus pacientes.',
+          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         ElevatedButton.icon(
           onPressed: () => context.go('/crearHistorial'),
           icon: const Icon(Icons.add),
@@ -348,7 +214,6 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00838F),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -358,28 +223,22 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
     );
   }
 
-  Widget _buildNoResultsFound() {
+  Widget _buildNoResultsFound(ThemeData theme) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.search_off, size: 80, color: Color(0xFF00838F)),
-        const SizedBox(height: 16),
+        const Icon(Icons.search_off, size: 64, color: Color(0xFF00838F)),
+        const SizedBox(height: 12),
         Text(
           'No se encontraron resultados',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF00838F),
-            fontWeight: FontWeight.w600,
-          ),
+          style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
         Text(
-          'Intenta con otros términos de búsqueda',
-          textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          'Prueba con otro nombre o DNI.',
+          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         ElevatedButton.icon(
           onPressed: _limpiarBusqueda,
           icon: const Icon(Icons.refresh),
@@ -387,7 +246,6 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00838F),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),

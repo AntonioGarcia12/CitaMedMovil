@@ -1,3 +1,5 @@
+import 'package:CitaMed/presentation/screens/citas_pacientes_screen.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +30,10 @@ class _PacienteScreenState extends State<PacienteScreen> {
     });
   }
 
+  Future<void> _refreshPage() async {
+    await _loadUserName();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -47,7 +53,6 @@ class _PacienteScreenState extends State<PacienteScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Background circles
               Positioned(
                 top: -50,
                 right: -50,
@@ -73,7 +78,6 @@ class _PacienteScreenState extends State<PacienteScreen> {
                 ),
               ),
 
-              // Main content
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -86,7 +90,6 @@ class _PacienteScreenState extends State<PacienteScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Greeting box
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -111,9 +114,14 @@ class _PacienteScreenState extends State<PacienteScreen> {
                               ),
                             ),
                           ),
-                          // Profile image button
                           GestureDetector(
-                            onTap: () => context.go('/perfilPaciente'),
+                            onTap: () async {
+                              final updated = await context.push(
+                                '/perfilPaciente',
+                              );
+                              if (updated == true)
+                                _refreshPage(); // <- vuelve a leer SharedPreferences
+                            },
                             child: CircleAvatar(
                               radius: 24,
                               backgroundImage:
@@ -132,29 +140,35 @@ class _PacienteScreenState extends State<PacienteScreen> {
 
                   Expanded(
                     child: Center(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0,
-                          vertical: 24.0,
-                        ),
-                        child: Container(
-                          width: min(size.width * 0.95, 450),
-                          margin: const EdgeInsets.symmetric(vertical: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF006064).withOpacity(0.3),
-                                blurRadius: 30,
-                                spreadRadius: 0,
-                                offset: const Offset(0, 15),
-                              ),
-                            ],
+                      child: RefreshIndicator(
+                        onRefresh: _refreshPage,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                            vertical: 24.0,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: InicioWidget(),
+                          child: Container(
+                            width: min(size.width * 0.95, 450),
+                            margin: const EdgeInsets.symmetric(vertical: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF006064,
+                                  ).withOpacity(0.3),
+                                  blurRadius: 30,
+                                  spreadRadius: 0,
+                                  offset: const Offset(0, 15),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: InicioWidget(),
+                            ),
                           ),
                         ),
                       ),
@@ -183,7 +197,6 @@ class InicioWidget extends StatelessWidget {
       children: [
         const SizedBox(height: 16),
         Image.asset('assets/imgs/iconoCitaMed.webp', height: 64),
-
         const SizedBox(height: 16),
         Text(
           'Bienvenido a CitaMed',
@@ -200,95 +213,47 @@ class InicioWidget extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 32),
-
         Wrap(
           spacing: 16,
           runSpacing: 16,
           alignment: WrapAlignment.center,
           children: [
-            _buildCardButton(
+            buildCardButton(
               context: context,
               imagePath: 'assets/imgs/fotosDeCitasMedicas.webp',
               label: 'Pedir citas',
-              onTap: () {
-                context.go('/citas');
-              },
+              onTap: () => context.go('/citas'),
             ),
-            _buildCardButton(
+            buildCardButton(
               context: context,
               imagePath: 'assets/imgs/fotoMapaCentros.webp',
               label: 'Centros de salud',
-              onTap: () {
-                context.go('/mapa');
-              },
+              onTap: () => context.go('/mapa'),
             ),
-            _buildCardButton(
+            buildCardButton(
               context: context,
               imagePath: 'assets/imgs/fotoCitas.webp',
               label: 'Mis citas',
-              onTap: () {
-                // TODO: implementar navegación
+              onTap: () async {
+                final prefs = await SharedPreferences.getInstance();
+                final id = prefs.getInt('id');
+                if (id == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No se encontró el ID del paciente'),
+                    ),
+                  );
+                  return;
+                }
+                context.goNamed(
+                  CitaPacienteScreen.name,
+                  pathParameters: {'id': id.toString()},
+                );
               },
             ),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildCardButton({
-    required BuildContext context,
-    required String imagePath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOut,
-        margin: const EdgeInsets.only(bottom: 16),
-        width: double.infinity,
-        height: 120,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          image: DecorationImage(
-            image: AssetImage(imagePath),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.25),
-              BlendMode.darken,
-            ),
-          ),
-        ),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-            ),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:CitaMed/infrastructures/models/centro_de_salud.dart';
 import 'package:CitaMed/services/centro_de_salud_services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -47,7 +48,7 @@ class _MapaScreenState extends State<MapaScreen> {
 
   Future<void> _initializeLocationTracking() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
-      _showSnackBar('Los servicios de ubicación están desactivados.');
+      mostrarError(context, 'Los servicios de ubicación están desactivados.');
       return;
     }
 
@@ -55,13 +56,16 @@ class _MapaScreenState extends State<MapaScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        _showSnackBar('Permiso de ubicación denegado.');
+        mostrarError(context, 'El permiso de ubicación fue denegado.');
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      _showSnackBar('El permiso de ubicación se ha denegado permanentemente.');
+      mostrarError(
+        context,
+        'El permiso de ubicación fue denegado permanentemente.',
+      );
       return;
     }
 
@@ -82,15 +86,7 @@ class _MapaScreenState extends State<MapaScreen> {
       final centros = await _centroService.listarCentrosDeSalud();
       setState(() => _centros = centros);
     } catch (e) {
-      _showSnackBar('Error al cargar centros: $e');
-    }
-  }
-
-  void _showSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      mostrarError(context, 'Error al cargar centros de salud: $e');
     }
   }
 
@@ -200,7 +196,10 @@ class _MapaScreenState extends State<MapaScreen> {
                                     setState(() => _isTracingRoute = true);
                                     await _traceRouteToCentro(centro);
                                     setState(() => _isTracingRoute = false);
-                                    _showSnackBar('Ruta trazada con éxito.');
+                                    mostrarExito(
+                                      context,
+                                      'Ruta trazada con éxito.',
+                                    );
                                   },
                           icon:
                               _isTracingRoute
@@ -254,7 +253,7 @@ class _MapaScreenState extends State<MapaScreen> {
       });
       _mapController.move(route.first, 14);
     } else {
-      _showSnackBar('No se pudo obtener la ruta.');
+      mostrarError(context, 'No se pudo trazar la ruta.');
     }
   }
 
@@ -350,6 +349,7 @@ class _MapaScreenState extends State<MapaScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: Colors.black.withOpacity(0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),

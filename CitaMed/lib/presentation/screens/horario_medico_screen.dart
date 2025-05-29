@@ -1,6 +1,8 @@
 import 'package:CitaMed/infrastructures/models/horario_medico.dart';
+import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 import 'package:CitaMed/presentation/widgets/horario_widget.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +34,7 @@ class _HorarioMedicoScreenState extends State<HorarioMedicoScreen> {
       try {
         final list = await _servicio.obtenerHorarios(id);
         setState(() => _horarios = list);
+        // ignore: empty_catches
       } catch (e) {}
     }
     setState(() => _isLoading = false);
@@ -41,14 +44,10 @@ class _HorarioMedicoScreenState extends State<HorarioMedicoScreen> {
     setState(() => _isLoading = true);
     try {
       await _servicio.borrarHorario(horarioId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Horario eliminado correctamente')),
-      );
+      mostrarExito(context, 'Horario eliminado exitosamente');
       await _cargarHorarios();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error eliminando horario: $e')));
+      mostrarError(context, 'Error al eliminar el horario: $e');
     }
     setState(() => _isLoading = false);
   }
@@ -56,8 +55,6 @@ class _HorarioMedicoScreenState extends State<HorarioMedicoScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -104,63 +101,12 @@ class _HorarioMedicoScreenState extends State<HorarioMedicoScreen> {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                // ignore: deprecated_member_use
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              color: Color(0xFF00838F),
-                            ),
-                            onPressed: () => context.go('/medico'),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  // ignore: deprecated_member_use
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              'Mis Horarios',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                color: const Color(0xFF00838F),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                      ],
+                    child: CustomAppBarWidget(
+                      title: 'Horarios Médicos',
+                      onBackPressed: () => context.go('/medico'),
                     ),
                   ),
 
-                  // Contenido principal
                   Expanded(
                     child: Center(
                       child: SingleChildScrollView(

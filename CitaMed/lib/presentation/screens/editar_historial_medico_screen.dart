@@ -1,8 +1,10 @@
 import 'package:CitaMed/infrastructures/models/historial_medico.dart';
 import 'package:CitaMed/infrastructures/models/medico.dart';
 import 'package:CitaMed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 import 'package:CitaMed/presentation/widgets/historial_form_widget.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -53,17 +55,11 @@ class _EditarHistorialMedicoScreenState
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se encontró historial para este paciente'),
-          ),
-        );
+        mostrarError(context, 'No se encontró el historial médico.');
         context.go('/historiales');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar el historial: $e')),
-      );
+      mostrarError(context, 'Error al cargar el historial médico: $e');
       context.go('/historiales');
     }
   }
@@ -85,14 +81,10 @@ class _EditarHistorialMedicoScreenState
         _historial!.id!,
         historialActualizado,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Historial actualizado exitosamente')),
-      );
+      mostrarExito(context, 'Historial actualizado exitosamente');
       context.go('/historiales');
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      mostrarError(context, 'Error al actualizar el historial: $e');
     } finally {
       setState(() => _saving = false);
     }
@@ -101,7 +93,6 @@ class _EditarHistorialMedicoScreenState
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
 
     return Scaffold(
       body: Container(
@@ -147,28 +138,9 @@ class _EditarHistorialMedicoScreenState
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => context.go('/historiales'),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            'Editar Historial Médico',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 56),
-                      ],
+                    child: CustomAppBarWidget(
+                      title: 'Editar Historial',
+                      onBackPressed: () => context.go('/historiales'),
                     ),
                   ),
                   Expanded(
