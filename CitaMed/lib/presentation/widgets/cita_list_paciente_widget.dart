@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
-class CitasListWidget extends StatelessWidget {
+class CitasListPacienteWidget extends StatelessWidget {
   final List<Cita> citas;
   final bool isLoading;
   final String? errorMessage;
@@ -13,7 +13,7 @@ class CitasListWidget extends StatelessWidget {
   final String Function(Cita) nombrePersonaBuilder;
   final String Function(Cita) especialidadBuilder;
 
-  const CitasListWidget({
+  const CitasListPacienteWidget({
     super.key,
     required this.citas,
     required this.isLoading,
@@ -108,25 +108,14 @@ class CitasListWidget extends StatelessWidget {
       itemBuilder: (context, index) {
         final cita = citas[index];
 
+        final mostrarCancelar =
+            onEstadoUpdate != null &&
+            (cita.estado == 'PENDIENTE' || cita.estado == 'CONFIRMADA');
+
         return Slidable(
           key: ValueKey(cita.id),
-          startActionPane:
-              (cita.estado == 'PENDIENTE')
-                  ? ActionPane(
-                    motion: const DrawerMotion(),
-                    extentRatio: 0.25,
-                    children: [
-                      SlidableAction(
-                        onPressed: (_) => onEstadoUpdate!(cita, 'confirmar'),
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        icon: Icons.check_circle,
-                      ),
-                    ],
-                  )
-                  : null,
           endActionPane:
-              (cita.estado == 'PENDIENTE' || cita.estado == 'CONFIRMADA')
+              mostrarCancelar
                   ? ActionPane(
                     motion: const DrawerMotion(),
                     extentRatio: 0.25,
@@ -160,7 +149,6 @@ class CitasListWidget extends StatelessWidget {
                 ),
               ],
             ),
-            trailing: const Icon(Icons.chevron_right),
           ),
         );
       },

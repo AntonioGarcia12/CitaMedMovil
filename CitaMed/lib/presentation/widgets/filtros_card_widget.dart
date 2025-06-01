@@ -7,7 +7,9 @@ class FiltrosCitasWidget extends StatelessWidget {
   final DateTime? fechaFin;
   final Function(String?) onEstadoChanged;
   final VoidCallback onReiniciar;
-  final Function(bool esInicio) onSeleccionarFecha;
+
+  /// Si es null, no se muestran los selectores de fecha
+  final Function(bool esInicio)? onSeleccionarFecha;
 
   const FiltrosCitasWidget({
     super.key,
@@ -17,7 +19,7 @@ class FiltrosCitasWidget extends StatelessWidget {
     required this.fechaFin,
     required this.onEstadoChanged,
     required this.onReiniciar,
-    required this.onSeleccionarFecha,
+    this.onSeleccionarFecha,
   });
 
   @override
@@ -35,6 +37,8 @@ class FiltrosCitasWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
+
+        // Fila de estado + botón de reiniciar
         Row(
           children: [
             Expanded(
@@ -72,28 +76,32 @@ class FiltrosCitasWidget extends StatelessWidget {
             ),
           ],
         ),
+
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _buildFechaSelector(
-                context,
-                label: 'Desde',
-                fecha: fechaInicio,
-                onTap: () => onSeleccionarFecha(true),
+
+        // Solo si onSeleccionarFecha NO es null mostramos los selectores de fecha
+        if (onSeleccionarFecha != null)
+          Row(
+            children: [
+              Expanded(
+                child: _buildFechaSelector(
+                  context,
+                  label: 'Desde',
+                  fecha: fechaInicio,
+                  onTap: () => onSeleccionarFecha!(true),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildFechaSelector(
-                context,
-                label: 'Hasta',
-                fecha: fechaFin,
-                onTap: () => onSeleccionarFecha(false),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildFechaSelector(
+                  context,
+                  label: 'Hasta',
+                  fecha: fechaFin,
+                  onTap: () => onSeleccionarFecha!(false),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
       ],
     );
   }

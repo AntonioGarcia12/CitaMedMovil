@@ -173,7 +173,6 @@ class RegisterScreen extends StatelessWidget {
                                 height: 32,
                               ),
 
-                              // Pie de página
                               Text(
                                 '© CitaMed ${DateTime.now().year} | Todos los derechos reservados',
                                 style: TextStyle(

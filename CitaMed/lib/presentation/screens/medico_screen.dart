@@ -222,14 +222,6 @@ class MedicoInicioWidget extends StatelessWidget {
                 context.go('/historiales');
               },
             ),
-            buildCardButton(
-              context: context,
-              imagePath: 'assets/imgs/fotoCrearConsulta.webp',
-              label: 'Horarios',
-              onTap: () {
-                context.go('/horarios');
-              },
-            ),
           ],
         ),
       ],

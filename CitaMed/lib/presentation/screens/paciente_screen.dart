@@ -1,4 +1,3 @@
-import 'package:CitaMed/presentation/screens/citas_pacientes_screen.dart';
 import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -234,22 +233,7 @@ class InicioWidget extends StatelessWidget {
               context: context,
               imagePath: 'assets/imgs/fotoCitas.webp',
               label: 'Mis citas',
-              onTap: () async {
-                final prefs = await SharedPreferences.getInstance();
-                final id = prefs.getInt('id');
-                if (id == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No se encontró el ID del paciente'),
-                    ),
-                  );
-                  return;
-                }
-                context.goNamed(
-                  CitaPacienteScreen.name,
-                  pathParameters: {'id': id.toString()},
-                );
-              },
+              onTap: () => context.go('/citasActuales'),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 export 'package:CitaMed/presentation/widgets/cita_card_widget.dart';
+export 'package:CitaMed/presentation/widgets/cita_list_paciente_widget.dart';
 export 'package:CitaMed/presentation/widgets/cita_list_widget.dart';
 export 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
 export 'package:CitaMed/presentation/widgets/filtros_card_widget.dart';
@@ -7,7 +8,6 @@ export 'package:CitaMed/presentation/widgets/foto_perfil_widget.dart';
 export 'package:CitaMed/presentation/widgets/gradient_background_widget.dart';
 export 'package:CitaMed/presentation/widgets/historial_form_widget.dart';
 export 'package:CitaMed/presentation/widgets/historial_list_widget.dart';
-export 'package:CitaMed/presentation/widgets/horario_form_widget.dart';
 export 'package:CitaMed/presentation/widgets/horarios_disponibles_widget.dart';
 export 'package:CitaMed/presentation/widgets/info_card_widget.dart';
 export 'package:CitaMed/presentation/widgets/informacion_medico_widget.dart';

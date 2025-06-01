@@ -11,6 +11,10 @@ final appRouter = GoRouter(
     GoRoute(path: '/medico', builder: (c, s) => const MedicoScreen()),
     GoRoute(path: '/mapa', builder: (c, s) => const MapaScreen()),
     GoRoute(
+      path: '/citasActuales',
+      builder: (c, s) => const CitasActualesPacienteScreen(),
+    ),
+    GoRoute(
       path: '/perfilPaciente',
       builder: (c, s) => const PerfilPacienteScreen(),
     ),
@@ -19,18 +23,6 @@ final appRouter = GoRouter(
       builder: (c, s) => const PerfilMedicoScreen(),
     ),
     GoRoute(path: '/citas', builder: (c, s) => const CitaScreen()),
-    GoRoute(
-      path: '/crearHorario',
-      builder: (c, s) => const CrearHorarioMedicoScreen(),
-    ),
-    GoRoute(path: '/horarios', builder: (c, s) => const HorarioMedicoScreen()),
-    GoRoute(
-      path: '/editarHorario/:id',
-      builder: (context, state) {
-        final id = int.parse(state.pathParameters['id']!);
-        return EditarHorarioMedicoScreen(id: id);
-      },
-    ),
     GoRoute(
       path: '/crearHistorialMedico',
       builder: (c, s) => const CrearHistorialMedicoScreen(),

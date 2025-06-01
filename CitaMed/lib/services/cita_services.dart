@@ -186,6 +186,30 @@ class CitaServices {
     }
   }
 
+  Future<List<Cita>> obtenerCitasActualesPaciente() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final uri = Uri.parse('${ApiConfig.baseUrl}/paciente/citasActuales');
+
+    final response = await http.get(
+      uri,
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final bodyMap = json.decode(response.body) as Map<String, dynamic>;
+      final List<dynamic> data = bodyMap['data'] as List<dynamic>? ?? [];
+      return data.map((e) => Cita.fromJson(e as Map<String, dynamic>)).toList();
+    } else {
+      String msg = 'Error al obtener citas actuales';
+      try {
+        final err = json.decode(response.body) as Map<String, dynamic>;
+        msg = err['mensaje'] as String? ?? msg;
+      } catch (_) {}
+      throw Exception(msg);
+    }
+  }
+
   String _extractError(http.Response response) {
     try {
       final err = json.decode(response.body) as Map<String, dynamic>;

@@ -1,53 +1,49 @@
 import 'package:CitaMed/infrastructures/models/cita.dart';
+import 'package:CitaMed/presentation/screens/screens.dart';
 import 'package:CitaMed/presentation/widgets/widgets.dart';
 import 'package:CitaMed/services/services.dart';
 import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CitaPacienteScreen extends StatefulWidget {
-  static const String name = 'CitaPacienteScreen';
-  final int id;
+class CitasActualesPacienteScreen extends StatefulWidget {
+  static const String name = 'CitasActualesPacienteScreen';
 
-  const CitaPacienteScreen({super.key, required this.id});
+  const CitasActualesPacienteScreen({super.key});
 
   @override
-  State<CitaPacienteScreen> createState() => _CitaPacienteScreenState();
+  State<CitasActualesPacienteScreen> createState() =>
+      _CitasActualesPacienteScreenState();
 }
 
-class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
-  List<Cita> _historialCitas = [];
+class _CitasActualesPacienteScreenState
+    extends State<CitasActualesPacienteScreen> {
+  List<Cita> _citasActuales = [];
   List<Cita> _todasLasCitas = [];
   bool _isLoading = false;
   final CitaServices _citaService = CitaServices();
   String? _errorMessage;
 
   String? _estadoSeleccionado;
-  final List<String> _estados = ['CONFIRMADA', 'CANCELADA'];
+  final List<String> _estados = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA'];
   DateTime? _fechaInicio;
   DateTime? _fechaFin;
 
   @override
   void initState() {
     super.initState();
-    _cargarHistorialCitas();
+    _cargarCitasActuales();
   }
 
-  Future<void> _cargarHistorialCitas() async {
+  Future<void> _cargarCitasActuales() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final todas = await _citaService.obtenerHistorialCitas(widget.id);
-      _todasLasCitas =
-          todas
-              .where(
-                (cita) =>
-                    cita.estado == 'CONFIRMADA' || cita.estado == 'CANCELADA',
-              )
-              .toList();
+      _todasLasCitas = await _citaService.obtenerCitasActualesPaciente();
       _aplicarFiltros();
     } catch (e) {
       setState(() {
@@ -61,8 +57,61 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
     }
   }
 
+  void _confirmarCancelacion(Cita cita) async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Cancelar cita'),
+            content: const Text('¿Deseas cancelar esta cita?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Sí'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmado == true) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final pacienteId = prefs.getInt('id');
+
+        if (pacienteId == null) {
+          mostrarError(context, 'No se encontró el ID del paciente');
+          return;
+        }
+
+        await _citaService.cancelarCitaPaciente(
+          citaId: cita.id!,
+          pacienteId: pacienteId,
+        );
+
+        setState(() {
+          final index = _todasLasCitas.indexWhere((c) => c.id == cita.id);
+          if (index != -1) {
+            _todasLasCitas[index] = cita.copyWith(estado: 'CANCELADA');
+          }
+          _aplicarFiltros();
+        });
+
+        // ignore: use_build_context_synchronously
+        mostrarExito(context, 'La cita ha sido cancelada exitosamente');
+      } catch (e) {
+        // ignore: use_build_context_synchronously
+        mostrarError(context, 'Error al cancelar la cita: $e');
+      }
+    }
+  }
+
   void _aplicarFiltros() {
     List<Cita> citasFiltradas = List.from(_todasLasCitas);
+
     if (_estadoSeleccionado != null) {
       citasFiltradas =
           citasFiltradas
@@ -92,10 +141,10 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
               .toList();
     }
 
-    citasFiltradas.sort((a, b) => b.fecha.compareTo(a.fecha));
+    citasFiltradas.sort((a, b) => a.fecha.compareTo(b.fecha));
 
     setState(() {
-      _historialCitas = citasFiltradas;
+      _citasActuales = citasFiltradas;
     });
   }
 
@@ -109,37 +158,19 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
     _aplicarFiltros();
   }
 
-  Future<void> _seleccionarFecha(bool esInicio) async {
-    final DateTime ahora = DateTime.now();
-    final DateTime? fecha = await showDatePicker(
-      context: context,
-      initialDate: ahora,
-      firstDate: DateTime(ahora.year - 5),
-      lastDate: DateTime(ahora.year + 1, 12, 31),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF00838F),
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (fecha != null) {
-      setState(() {
-        if (esInicio) {
-          _fechaInicio = fecha;
-        } else {
-          _fechaFin = fecha;
-        }
-      });
-      _aplicarFiltros();
+  Future<void> _irAHistorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getInt('id');
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se encontró el ID del paciente')),
+      );
+      return;
     }
+    context.goNamed(
+      CitaPacienteScreen.name,
+      pathParameters: {'id': id.toString()},
+    );
   }
 
   @override
@@ -194,8 +225,8 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
                       vertical: 12,
                     ),
                     child: CustomAppBarWidget(
-                      title: 'Historial de Citas',
-                      onBackPressed: () => context.go('/citasActuales'),
+                      title: 'Citas Actuales',
+                      onBackPressed: () => context.go('/paciente'),
                     ),
                   ),
                   Expanded(
@@ -233,23 +264,40 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
                                 _aplicarFiltros();
                               },
                               onReiniciar: _reiniciarFiltros,
-                              onSeleccionarFecha: _seleccionarFecha,
                             ),
                             const SizedBox(height: 16),
-                            Text(
-                              'Historial de Citas',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: const Color(0xFF00838F),
-                                fontWeight: FontWeight.w600,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Citas Actuales',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: const Color(0xFF00838F),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: _cargarCitasActuales,
+                                  icon: const Icon(
+                                    Icons.refresh,
+                                    color: Color(0xFF00838F),
+                                  ),
+                                  tooltip: 'Actualizar',
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 8),
                             Expanded(
                               child: CitasListPacienteWidget(
-                                citas: _historialCitas,
+                                citas: _citasActuales,
                                 isLoading: _isLoading,
                                 errorMessage: _errorMessage,
                                 onCitaTap: (_) {},
+                                onEstadoUpdate: (cita, estado) {
+                                  if (estado == 'cancelar') {
+                                    _confirmarCancelacion(cita);
+                                  }
+                                },
                                 nombrePersonaBuilder:
                                     (cita) =>
                                         'Dr. ${cita.idMedico.nombre} ${cita.idMedico.apellidos}',
@@ -267,6 +315,14 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _irAHistorial,
+        backgroundColor: const Color(0xFF00838F),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.history),
+        label: const Text('Historial'),
+        tooltip: 'Ver historial completo',
       ),
     );
   }

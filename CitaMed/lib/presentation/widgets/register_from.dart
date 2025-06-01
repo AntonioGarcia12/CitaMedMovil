@@ -21,11 +21,15 @@ class _RegisterFormState extends State<RegisterForm> {
   File? _imagenSeleccionada;
   bool _isLoading = false;
   final _dateController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
   bool _ocultarContrasenya = true;
 
   @override
   void dispose() {
     _dateController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
     super.dispose();
   }
 
@@ -159,6 +163,7 @@ class _RegisterFormState extends State<RegisterForm> {
             tipo: TextInputType.emailAddress,
           ),
           _buildPasswordField(),
+          _buildConfirmPasswordField(),
           _buildCampoTexto(
             'Teléfono',
             (val) => _usuario.telefono = val!,
@@ -374,6 +379,7 @@ class _RegisterFormState extends State<RegisterForm> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
+        controller: _passwordController,
         obscureText: _ocultarContrasenya,
         decoration: InputDecoration(
           labelText: 'Contraseña',
@@ -419,6 +425,46 @@ class _RegisterFormState extends State<RegisterForm> {
           return null;
         },
         onSaved: (value) => _usuario.contrasenya = value!,
+      ),
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: _confirmController,
+        obscureText: _ocultarContrasenya,
+        decoration: InputDecoration(
+          labelText: 'Confirmar contraseña',
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFF00838F), width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.red.shade300),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.red.shade400, width: 2),
+          ),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Por favor confirme la contraseña';
+          }
+          if (value != _passwordController.text) {
+            return 'Las contraseñas no coinciden';
+          }
+          return null;
+        },
       ),
     );
   }

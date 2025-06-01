@@ -1,14 +1,12 @@
+export 'package:CitaMed/presentation/screens/citas_actuales_paciente_screen.dart';
 export 'package:CitaMed/presentation/screens/citas_de_un_medico_screen.dart';
 export 'package:CitaMed/presentation/screens/citas_pacientes_screen.dart';
 export 'package:CitaMed/presentation/screens/citas_screen.dart';
 export 'package:CitaMed/presentation/screens/crear_historial_medico_screen.dart';
-export 'package:CitaMed/presentation/screens/crear_horario_medico_screen.dart';
 export 'package:CitaMed/presentation/screens/detalle_cita_screen.dart';
 export 'package:CitaMed/presentation/screens/editar_cita_screen.dart';
 export 'package:CitaMed/presentation/screens/editar_historial_medico_screen.dart';
-export 'package:CitaMed/presentation/screens/editar_horario_medico_screen.dart';
 export 'package:CitaMed/presentation/screens/historial_medico_screen.dart';
-export 'package:CitaMed/presentation/screens/horario_medico_screen.dart';
 export 'package:CitaMed/presentation/screens/login_screen.dart';
 export 'package:CitaMed/presentation/screens/mapa_screen.dart';
 export 'package:CitaMed/presentation/screens/medico_screen.dart';

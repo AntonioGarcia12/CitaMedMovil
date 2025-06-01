@@ -7,12 +7,10 @@ import 'package:intl/intl.dart';
 class HorarioListWidget extends StatelessWidget {
   final List<HorarioMedico> horarios;
   final bool isLoading;
-  final Function(int) onDelete;
 
   const HorarioListWidget({
     required this.horarios,
     required this.isLoading,
-    required this.onDelete,
     super.key,
   });
 
@@ -99,46 +97,7 @@ class HorarioListWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              endActionPane: ActionPane(
-                motion: const DrawerMotion(),
-                children: [
-                  SlidableAction(
-                    onPressed: (context) async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: const Text('Confirmar'),
-                              content: const Text(
-                                '¿Deseas eliminar este horario?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  child: const Text('Cancelar'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Borrar'),
-                                ),
-                              ],
-                            ),
-                      );
-                      if (confirm == true) {
-                        onDelete(h.id!);
-                      }
-                    },
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    icon: Icons.delete,
-                    label: 'Borrar',
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(12),
-                    ),
-                  ),
-                ],
-              ),
+
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
