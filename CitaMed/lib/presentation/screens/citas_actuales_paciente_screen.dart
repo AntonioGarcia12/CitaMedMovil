@@ -49,6 +49,7 @@ class _CitasActualesPacienteScreenState
       setState(() {
         _errorMessage = e.toString();
       });
+      // ignore: use_build_context_synchronously
       mostrarError(context, '$_errorMessage');
     } finally {
       setState(() {
@@ -83,6 +84,7 @@ class _CitasActualesPacienteScreenState
         final pacienteId = prefs.getInt('id');
 
         if (pacienteId == null) {
+          // ignore: use_build_context_synchronously
           mostrarError(context, 'No se encontró el ID del paciente');
           return;
         }

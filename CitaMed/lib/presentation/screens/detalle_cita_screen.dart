@@ -30,6 +30,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
   Medico? _medico;
   bool _isLoading = false;
   HorarioMedico? _horarioSeleccionado;
+  String? _messageState;
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
 
       _medico = await _pacienteService.listarUnMedico(widget.medicoId);
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, '$e');
     } finally {
       setState(() => _isLoading = false);
@@ -54,15 +56,15 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
 
   void _seleccionarHorario(HorarioMedico horario) {
     setState(() {
-      _horarioSeleccionado = _horarioSeleccionado == horario ? null : horario;
+      _horarioSeleccionado = (_horarioSeleccionado == horario) ? null : horario;
     });
+
+    if (_horarioSeleccionado != null) {
+      Future.delayed(Duration.zero, () => _confirmarCita());
+    }
   }
 
   Future<void> _confirmarCita() async {
-    if (_horarioSeleccionado == null) {
-      mostrarError(context, 'Por favor seleccione una fecha y hora');
-      return;
-    }
     if (_medico == null) {
       mostrarError(context, 'Datos de médico no disponibles');
       return;
@@ -92,19 +94,27 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context, true),
-
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
                 child: const Text('Confirmar'),
               ),
             ],
           ),
     );
 
-    if (confirm != true) return;
+    if (confirm != true) {
+      setState(() {
+        _horarioSeleccionado = null;
+      });
+      return;
+    }
 
     setState(() => _isLoading = true);
     try {
@@ -113,6 +123,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
       if (idPaciente == null) throw Exception('Usuario no autenticado');
 
       if (_medico!.centroDeSalud == null) {
+        // ignore: use_build_context_synchronously
         mostrarError(context, 'El médico no tiene un centro de salud asignado');
         setState(() => _isLoading = false);
         return;
@@ -125,19 +136,19 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
 
       final creada = await _citaService.crearCita(cita: nueva, id: idPaciente);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Cita confirmada para ${_dateFormat.format(creada.fecha)}',
-          ),
-        ),
-      );
+      _messageState =
+          'Cita confirmada para ${_dateFormat.format(creada.fecha)}';
+
+      // ignore: use_build_context_synchronously
+      mostrarExito(context, _messageState!);
       setState(() {
         _horarios.removeWhere((h) => h.id == _horarioSeleccionado?.id);
         _horarioSeleccionado = null;
       });
+      // ignore: use_build_context_synchronously
       context.go('/citas');
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error confirmando cita: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -168,6 +179,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
                   height: 200,
                   width: 200,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -180,6 +192,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
                   height: 250,
                   width: 250,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.07),
                     borderRadius: BorderRadius.circular(125),
                   ),
@@ -214,6 +227,7 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: const Color(0xFF006064).withOpacity(0.3),
                                 blurRadius: 20,
                                 spreadRadius: 0,
@@ -264,34 +278,6 @@ class _DetalleCitaScreenState extends State<DetalleCitaScreen> {
                                               onSeleccionar:
                                                   _seleccionarHorario,
                                             ),
-
-                                        if (_horarioSeleccionado != null) ...[
-                                          const SizedBox(height: 24),
-                                          ElevatedButton(
-                                            onPressed: _confirmarCita,
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(
-                                                0xFF00838F,
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 12,
-                                                  ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            child: Text(
-                                              'Confirmar Cita',
-                                              style: theme.textTheme.titleMedium
-                                                  ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
                                       ],
                                     ),
                                   ),

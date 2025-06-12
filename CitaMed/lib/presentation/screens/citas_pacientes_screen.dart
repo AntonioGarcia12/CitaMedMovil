@@ -53,6 +53,7 @@ class _CitaPacienteScreenState extends State<CitaPacienteScreen> {
       setState(() {
         _errorMessage = e.toString();
       });
+      // ignore: use_build_context_synchronously
       mostrarError(context, '$_errorMessage');
     } finally {
       setState(() {

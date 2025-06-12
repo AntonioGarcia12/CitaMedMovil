@@ -105,6 +105,7 @@ class HorarioListWidget extends StatelessWidget {
                   border: Border.all(color: Colors.grey.shade200),
                   boxShadow: [
                     BoxShadow(
+                      // ignore: deprecated_member_use
                       color: Colors.grey.withOpacity(0.2),
                       spreadRadius: 1,
                       blurRadius: 4,
@@ -120,6 +121,7 @@ class HorarioListWidget extends StatelessWidget {
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
+                      // ignore: deprecated_member_use
                       color: const Color(0xFF00838F).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),

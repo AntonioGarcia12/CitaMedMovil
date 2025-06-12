@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:CitaMed/config/api_config.dart';
 import 'package:CitaMed/infrastructures/models/horario_medico.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,17 +69,8 @@ class HorarioMedicoServices {
 
       return futuros;
     } else {
-      final msg = _extractError(response);
+      final msg = extractError(response);
       throw Exception(msg);
-    }
-  }
-
-  String _extractError(http.Response response) {
-    try {
-      final map = json.decode(response.body) as Map<String, dynamic>;
-      return map['mensaje'] as String? ?? 'Código ${response.statusCode}';
-    } catch (_) {
-      return 'Código ${response.statusCode}';
     }
   }
 }

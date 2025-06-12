@@ -105,4 +105,29 @@ class MedicoService {
 
     return data.map((e) => e as String).toList();
   }
+
+  Future<Usuario> listarUnPaciente(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final uri = Uri.parse('${ApiConfig.baseUrl}/medico/listarUnPaciente/$id');
+
+    final response = await http.get(
+      uri,
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
+    final body = response.body;
+    if (response.statusCode == 200) {
+      final jsonMap = json.decode(body) as Map<String, dynamic>;
+      final data = jsonMap['data'] as Map<String, dynamic>;
+      return Usuario.fromJson(data);
+    } else {
+      String msg = 'Error al obtener paciente';
+      try {
+        final err = json.decode(body) as Map<String, dynamic>;
+        msg = err['mensaje'] ?? msg;
+      } catch (_) {}
+      throw Exception(msg);
+    }
+  }
 }

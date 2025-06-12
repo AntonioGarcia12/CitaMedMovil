@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:CitaMed/infrastructures/models/cita.dart';
 import 'package:CitaMed/infrastructures/models/historial_medico.dart';
 import 'package:CitaMed/infrastructures/models/medico.dart';
 import 'package:CitaMed/infrastructures/models/usuario.dart';
@@ -10,7 +13,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CrearHistorialMedicoScreen extends StatefulWidget {
   static const String name = 'CrearHistorialMedicoScreen';
-  const CrearHistorialMedicoScreen({super.key});
+  final Usuario? pacienteInicial;
+  final Cita? cita;
+
+  const CrearHistorialMedicoScreen({
+    super.key,
+    this.pacienteInicial,
+    this.cita,
+  });
 
   @override
   State<CrearHistorialMedicoScreen> createState() =>
@@ -26,19 +36,20 @@ class _CrearHistorialMedicoScreenState
   final _medicoService = MedicoService();
 
   Medico? _medico;
-  List<Usuario> _pacientes = [];
   Usuario? _pacienteSeleccionado;
+  Cita? _cita;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _pacienteSeleccionado = widget.pacienteInicial;
+    _cita = widget.cita;
     _cargarDatos();
   }
 
   Future<void> _cargarDatos() async {
     await _cargarMedico();
-    await _cargarPacientes();
   }
 
   Future<void> _cargarMedico() async {
@@ -50,24 +61,15 @@ class _CrearHistorialMedicoScreenState
     }
   }
 
-  Future<void> _cargarPacientes() async {
-    try {
-      final pacientes = await _medicoService.obtenerPacientes();
-      setState(() => _pacientes = pacientes);
-    } catch (e) {
-      mostrarError(context, 'Error al cargar pacientes: $e');
-    }
-  }
-
   Future<void> _guardarHistorial() async {
-    if (!_formKey.currentState!.validate() ||
-        _medico == null ||
-        _pacienteSeleccionado == null)
+    if (!_formKey.currentState!.validate() || _medico == null) {
       return;
+    }
 
     final historial = HistorialMedico(
       medico: _medico!,
       paciente: _pacienteSeleccionado!,
+      cita: _cita,
       diagnostico: _diagnosticoController.text.trim(),
       tratamiento: _tratamientoController.text.trim(),
     );
@@ -75,9 +77,12 @@ class _CrearHistorialMedicoScreenState
     setState(() => _isLoading = true);
     try {
       await _historialService.crearHistorialMedico(historial);
+      // ignore: use_build_context_synchronously
       mostrarExito(context, 'Historial médico creado con éxito');
-      context.go('/historiales');
+      // ignore: use_build_context_synchronously
+      context.go('/citasMedico');
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error al crear historial: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -112,10 +117,13 @@ class _CrearHistorialMedicoScreenState
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: CustomAppBarWidget(
-                      title: 'Crear Historial Médico',
-                      onBackPressed: () => context.go('/historiales'),
+                      title: 'Historial',
+                      onBackPressed: () => context.go('/citasMedico'),
                     ),
                   ),
                   Expanded(
@@ -150,6 +158,7 @@ class _CrearHistorialMedicoScreenState
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
@@ -196,26 +205,15 @@ class _CrearHistorialMedicoScreenState
   }
 
   Widget _buildDropdownPacientes() {
-    return DropdownButtonFormField<Usuario>(
-      value: _pacienteSeleccionado,
-      items:
-          _pacientes
-              .map(
-                (paciente) => DropdownMenuItem(
-                  value: paciente,
-                  child: Text('${paciente.nombre} ${paciente.apellidos}'),
-                ),
-              )
-              .toList(),
-      onChanged: (value) => setState(() => _pacienteSeleccionado = value),
-      decoration: InputDecoration(
-        labelText: 'Seleccionar Paciente',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        prefixIcon: const Icon(Icons.person, color: Color(0xFF00838F)),
-      ),
-      validator: (value) => value == null ? 'Seleccione un paciente' : null,
+    if (_pacienteSeleccionado == null) {
+      return const Text(
+        'Paciente no disponible',
+        style: TextStyle(fontSize: 16, color: Colors.grey),
+      );
+    }
+    return Text(
+      '${_pacienteSeleccionado!.nombre} ${_pacienteSeleccionado!.apellidos}',
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
     );
   }
 
@@ -260,6 +258,4 @@ class _CrearHistorialMedicoScreenState
       ),
     );
   }
-
-  double min(double a, double b) => a < b ? a : b;
 }

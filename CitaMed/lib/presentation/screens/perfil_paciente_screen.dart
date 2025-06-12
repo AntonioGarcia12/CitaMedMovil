@@ -85,17 +85,33 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
       setState(() => _isLoading = true);
 
       try {
-        final actualizado = await _pacienteService.editarPaciente(
+        await _pacienteService.editarPaciente(
           usuarioActual: _usuario!,
           cambios: cambios,
           archivo: _imagenSeleccionada,
         );
 
-        setState(() => _usuario = actualizado);
+        final usuarioActualizado = await _pacienteService.listarUnPaciente(
+          _usuario!.id,
+        );
 
+        setState(() => _usuario = usuarioActualizado);
+
+        final prefs = await SharedPreferences.getInstance();
+        if (usuarioActualizado.imagen != null &&
+            usuarioActualizado.imagen!.isNotEmpty) {
+          await prefs.setString('imagen', usuarioActualizado.imagen!);
+        }
+
+        PaintingBinding.instance.imageCache.clear();
+        PaintingBinding.instance.imageCache.clearLiveImages();
+
+        // ignore: use_build_context_synchronously
         mostrarExito(context, 'Perfil actualizado');
-        context.go('/paciente');
+        // ignore: use_build_context_synchronously
+        context.pop(true);
       } catch (e) {
+        // ignore: use_build_context_synchronously
         mostrarError(context, 'Error al actualizar el perfil');
       } finally {
         setState(() => _isLoading = false);
@@ -134,6 +150,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                   height: 200,
                   width: 200,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -146,6 +163,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                   height: 250,
                   width: 250,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.07),
                     borderRadius: BorderRadius.circular(125),
                   ),
@@ -227,6 +245,7 @@ class _PerfilPacienteScreenState extends State<PerfilPacienteScreen> {
                                       BoxShadow(
                                         color: const Color(
                                           0xFF006064,
+                                          // ignore: deprecated_member_use
                                         ).withOpacity(0.3),
                                         blurRadius: 30,
                                         offset: const Offset(0, 15),

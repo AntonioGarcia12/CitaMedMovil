@@ -1,8 +1,15 @@
 import 'package:CitaMed/config/routes/routes.dart';
 import 'package:CitaMed/config/theme/app_theme.dart';
+import 'package:CitaMed/services/notificacion_services.dart';
 import 'package:flutter/material.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Europe/Madrid'));
+  await NotificacionService.initNotifications();
   runApp(const MyApp());
 }
 

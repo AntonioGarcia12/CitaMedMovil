@@ -1,6 +1,5 @@
 import 'package:CitaMed/infrastructures/models/historial_medico.dart';
 import 'package:CitaMed/presentation/widgets/custom_appBar_widget.dart';
-import 'package:CitaMed/presentation/widgets/historial_list_widget.dart';
 import 'package:CitaMed/services/services.dart';
 import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
@@ -41,11 +40,24 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
     setState(() => _isLoading = true);
     try {
       final list = await _servicio.obtenerHistorialesMedicos();
+
+      final seenIds = <int>{};
+      final unicos = <HistorialMedico>[];
+
+      for (final h in list) {
+        final idPaciente = h.paciente.id;
+        if (!seenIds.contains(idPaciente)) {
+          seenIds.add(idPaciente);
+          unicos.add(h);
+        }
+      }
+
       setState(() {
-        _historiales = list;
-        _filtrados = List.from(list);
+        _historiales = unicos;
+        _filtrados = List.from(unicos);
       });
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error al cargar historiales: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -70,18 +82,6 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
     });
   }
 
-  Future<void> _borrarHistorial(int id) async {
-    try {
-      await _servicio.borrarhistorial(id);
-      mostrarExito(context, 'Historial eliminado correctamente');
-      await _cargarHistoriales();
-    } catch (e) {
-      mostrarError(context, 'Error al borrar historial: $e');
-    }
-  }
-
-  void _editarHistorial(int pacienteId) =>
-      context.go('/editarHistorial/$pacienteId');
   void _limpiarBusqueda() {
     _searchController.clear();
     _searchFocusNode.unfocus();
@@ -93,11 +93,6 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/crearHistorialMedico'),
-        backgroundColor: const Color(0xFF00838F),
-        child: const Icon(Icons.add),
-      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -124,6 +119,7 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: const Color(0xFF006064).withOpacity(0.3),
                           blurRadius: 30,
                           offset: const Offset(0, 15),
@@ -181,13 +177,67 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
       return _buildEmptyState(theme);
     } else if (_filtrados.isEmpty) {
       return _buildNoResultsFound(theme);
-    } else {
-      return HistorialListWidget(
-        historiales: _filtrados,
-        onDelete: _borrarHistorial,
-        onEdit: _editarHistorial,
-      );
     }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _filtrados.length,
+      itemBuilder: (context, index) {
+        final historial = _filtrados[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: CircleAvatar(
+              radius: 28,
+              // ignore: deprecated_member_use
+              backgroundColor: const Color(0xFF00838F).withOpacity(0.1),
+              backgroundImage:
+                  historial.paciente.imagen != null
+                      ? NetworkImage(historial.paciente.imagen!)
+                      : null,
+              child:
+                  historial.paciente.imagen == null
+                      ? const Icon(
+                        Icons.person,
+                        size: 28,
+                        color: Color(0xFF00838F),
+                      )
+                      : null,
+            ),
+            title: Text(
+              '${historial.paciente.nombre} ${historial.paciente.apellidos}',
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: Color(0xFF006064),
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                if (historial.paciente.dni != null)
+                  Text(
+                    'DNI: ${historial.paciente.dni}',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                const SizedBox(height: 2),
+              ],
+            ),
+
+            onTap: () {
+              context.push('/verHistorialMedico/${historial.paciente.id}');
+            },
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildEmptyState(ThemeData theme) {
@@ -202,23 +252,7 @@ class _HistorialMedicoScreenState extends State<HistorialMedicoScreen> {
         const SizedBox(height: 12),
         Text('No hay historiales médicos', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
-        Text(
-          'Crea un nuevo historial para tus pacientes.',
-          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-        ),
         const SizedBox(height: 20),
-        ElevatedButton.icon(
-          onPressed: () => context.go('/crearHistorial'),
-          icon: const Icon(Icons.add),
-          label: const Text('Crear Historial'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00838F),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
       ],
     );
   }

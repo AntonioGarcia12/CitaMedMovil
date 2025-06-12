@@ -53,6 +53,7 @@ class PerfilUsuario extends StatelessWidget {
                             borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: const Color(0xFF006064).withOpacity(0.3),
                                 blurRadius: 30,
                                 offset: const Offset(0, 15),
@@ -112,6 +113,7 @@ class PerfilUsuario extends StatelessWidget {
             height: 200,
             width: 200,
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: Colors.white.withOpacity(0.05),
               borderRadius: BorderRadius.circular(100),
             ),
@@ -124,6 +126,7 @@ class PerfilUsuario extends StatelessWidget {
             height: 250,
             width: 250,
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: Colors.white.withOpacity(0.07),
               borderRadius: BorderRadius.circular(125),
             ),

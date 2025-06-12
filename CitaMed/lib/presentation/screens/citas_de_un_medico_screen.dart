@@ -1,6 +1,7 @@
 import 'package:CitaMed/infrastructures/models/cita.dart';
 import 'package:CitaMed/presentation/widgets/widgets.dart';
 import 'package:CitaMed/services/services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,7 @@ class _CitasMedicoScreenState extends State<CitasMedicoScreen> {
   List<Cita> _citas = [];
   bool _isLoading = false;
   String? _errorMessage;
+  String? _messageState;
 
   @override
   void initState() {
@@ -41,16 +43,11 @@ class _CitasMedicoScreenState extends State<CitasMedicoScreen> {
               .toList();
     } catch (e) {
       _errorMessage = e.toString();
-      _mostrarError(_errorMessage!);
+      // ignore: use_build_context_synchronously
+      mostrarError(context, _errorMessage!);
     } finally {
       setState(() => _isLoading = false);
     }
-  }
-
-  void _mostrarError(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
-    );
   }
 
   Future<void> _actualizarEstado(Cita cita, String nuevoEstado) async {
@@ -96,27 +93,38 @@ class _CitasMedicoScreenState extends State<CitasMedicoScreen> {
           );
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            nuevoEstado == 'confirmar'
-                ? 'Cita confirmada correctamente'
-                : 'Cita cancelada correctamente',
-          ),
-        ),
-      );
+      _messageState =
+          nuevoEstado == 'confirmar'
+              ? 'Cita confirmada correctamente'
+              : 'Cita cancelada correctamente';
+
+      // ignore: use_build_context_synchronously
+      mostrarExito(context, _messageState!);
     } catch (e) {
-      _mostrarError('No se pudo actualizar: ${e.toString()}');
+      // ignore: use_build_context_synchronously
+      mostrarError(context, 'No se pudo actualizar: ${e.toString()}');
     }
   }
 
-  Future<void> _verDetalle(Cita cita) async {
+  void _irACrearHistorial(Cita cita) {
+    if (cita.estado == 'PENDIENTE') {
+      return;
+    }
+    context.go(
+      '/crearHistorialMedico',
+      extra: {'paciente': cita.paciente, 'cita': cita},
+    );
+  }
+
+  Future<void> _irAEditarCita(Cita cita) async {
     setState(() => _isLoading = true);
     try {
       final detalle = await _citaService.obtenerCitaPorId(cita.id!);
+      // ignore: use_build_context_synchronously
       context.go('/editarCita/${detalle.id}', extra: detalle);
     } catch (e) {
-      _mostrarError('Error al obtener detalle: ${e.toString()}');
+      // ignore: use_build_context_synchronously
+      mostrarError(context, 'Error al obtener detalle: ${e.toString()}');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -142,8 +150,8 @@ class _CitasMedicoScreenState extends State<CitasMedicoScreen> {
                     citas: _citas,
                     isLoading: _isLoading,
                     errorMessage: _errorMessage,
-
-                    onCitaTap: _verDetalle,
+                    onTap: _irACrearHistorial,
+                    onEditarTap: _irAEditarCita,
                     onEstadoUpdate: _actualizarEstado,
                     nombrePersonaBuilder:
                         (cita) =>

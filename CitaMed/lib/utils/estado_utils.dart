@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:CitaMed/services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 
 Color getEstadoColor(String estado) {
   switch (estado) {
@@ -241,4 +244,13 @@ Widget buildCardButton({
       ),
     ),
   );
+}
+
+String extractError(http.Response response) {
+  try {
+    final err = json.decode(response.body) as Map<String, dynamic>;
+    return err['mensaje'] as String? ?? 'Código ${response.statusCode}';
+  } catch (_) {
+    return 'Código ${response.statusCode}';
+  }
 }

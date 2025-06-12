@@ -95,6 +95,7 @@ class CitaCardWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: getEstadoColor(cita.estado!).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),

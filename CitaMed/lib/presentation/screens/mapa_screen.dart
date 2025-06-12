@@ -48,6 +48,7 @@ class _MapaScreenState extends State<MapaScreen> {
 
   Future<void> _initializeLocationTracking() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Los servicios de ubicación están desactivados.');
       return;
     }
@@ -56,6 +57,7 @@ class _MapaScreenState extends State<MapaScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
+        // ignore: use_build_context_synchronously
         mostrarError(context, 'El permiso de ubicación fue denegado.');
         return;
       }
@@ -63,6 +65,7 @@ class _MapaScreenState extends State<MapaScreen> {
 
     if (permission == LocationPermission.deniedForever) {
       mostrarError(
+        // ignore: use_build_context_synchronously
         context,
         'El permiso de ubicación fue denegado permanentemente.',
       );
@@ -86,6 +89,7 @@ class _MapaScreenState extends State<MapaScreen> {
       final centros = await _centroService.listarCentrosDeSalud();
       setState(() => _centros = centros);
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error al cargar centros de salud: $e');
     }
   }
@@ -197,6 +201,7 @@ class _MapaScreenState extends State<MapaScreen> {
                                     await _traceRouteToCentro(centro);
                                     setState(() => _isTracingRoute = false);
                                     mostrarExito(
+                                      // ignore: use_build_context_synchronously
                                       context,
                                       'Ruta trazada con éxito.',
                                     );
@@ -253,6 +258,7 @@ class _MapaScreenState extends State<MapaScreen> {
       });
       _mapController.move(route.first, 14);
     } else {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'No se pudo trazar la ruta.');
     }
   }

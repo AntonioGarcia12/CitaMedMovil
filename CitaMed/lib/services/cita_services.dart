@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:CitaMed/config/api_config.dart';
 import 'package:CitaMed/infrastructures/models/cita.dart';
+import 'package:CitaMed/services/notificacion_services.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,12 +30,35 @@ class CitaServices {
       body: json.encode(payload),
     );
 
-    final body = response.body;
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final body = response.body;
       final map = json.decode(body) as Map<String, dynamic>;
-      final data = map['data'] as Map<String, dynamic>;
-      return Cita.fromJson(data);
+      debugPrint('Respuesta del servidor: ${map['data']}');
+
+      Cita citaCreada;
+      try {
+        citaCreada = Cita.fromJson(map['data'] as Map<String, dynamic>);
+      } catch (e) {
+        debugPrint('ERROR al hacer Cita.fromJson: $e');
+        throw Exception('Error al parsear la respuesta de crear cita: $e');
+      }
+
+      try {
+        final titulo = 'Cita próxima';
+        final cuerpo = 'Tu cita comienza en una 1 hora';
+        await NotificacionService.programarNotificacionUnaHoraAntes(
+          idNotificacion: citaCreada.id ?? 0,
+          titulo: titulo,
+          cuerpo: cuerpo,
+          fechaCita: cita.fecha,
+        );
+      } catch (e) {
+        debugPrint('No se pudo programar notificación: $e');
+      }
+
+      return citaCreada;
     } else {
+      final body = response.body;
       String msg;
       try {
         final err = json.decode(body) as Map<String, dynamic>;
@@ -162,7 +188,7 @@ class CitaServices {
       final map = json.decode(response.body) as Map<String, dynamic>;
       return Cita.fromJson(map['data'] as Map<String, dynamic>);
     } else {
-      final msg = _extractError(response);
+      final msg = extractError(response);
       throw Exception('Error al editar cita: $msg');
     }
   }
@@ -181,7 +207,7 @@ class CitaServices {
       final map = json.decode(response.body) as Map<String, dynamic>;
       return Cita.fromJson(map['data'] as Map<String, dynamic>);
     } else {
-      final msg = _extractError(response);
+      final msg = extractError(response);
       throw Exception('Error al obtener cita: $msg');
     }
   }
@@ -207,15 +233,6 @@ class CitaServices {
         msg = err['mensaje'] as String? ?? msg;
       } catch (_) {}
       throw Exception(msg);
-    }
-  }
-
-  String _extractError(http.Response response) {
-    try {
-      final err = json.decode(response.body) as Map<String, dynamic>;
-      return err['mensaje'] as String? ?? 'Código ${response.statusCode}';
-    } catch (_) {
-      return 'Código ${response.statusCode}';
     }
   }
 }

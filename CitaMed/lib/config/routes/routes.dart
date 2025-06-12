@@ -1,3 +1,5 @@
+import 'package:CitaMed/infrastructures/models/cita.dart';
+import 'package:CitaMed/infrastructures/models/usuario.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../presentation/screens/screens.dart';
@@ -25,19 +27,19 @@ final appRouter = GoRouter(
     GoRoute(path: '/citas', builder: (c, s) => const CitaScreen()),
     GoRoute(
       path: '/crearHistorialMedico',
-      builder: (c, s) => const CrearHistorialMedicoScreen(),
+      name: CrearHistorialMedicoScreen.name,
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>?;
+        return CrearHistorialMedicoScreen(
+          pacienteInicial: data?['paciente'] as Usuario?,
+          cita: data?['cita'] as Cita?,
+        );
+      },
     ),
+
     GoRoute(
       path: '/historiales',
       builder: (c, s) => const HistorialMedicoScreen(),
-    ),
-    GoRoute(
-      name: EditarHistorialMedicoScreen.name,
-      path: '/editarHistorial/:id',
-      builder: (context, state) {
-        final id = int.parse(state.pathParameters['id']!);
-        return EditarHistorialMedicoScreen(id: id);
-      },
     ),
     GoRoute(
       name: DetalleCitaScreen.name,
@@ -63,6 +65,14 @@ final appRouter = GoRouter(
         final id = int.parse(state.pathParameters['id']!);
         return EditarCitaScreen(id: id);
       },
+    ),
+    GoRoute(
+      path: '/verHistorialMedico/:pacienteId',
+      name: VerHistorialMedicoScreen.name,
+      builder:
+          (context, state) => VerHistorialMedicoScreen(
+            pacienteId: int.parse(state.pathParameters['pacienteId']!),
+          ),
     ),
   ],
 );

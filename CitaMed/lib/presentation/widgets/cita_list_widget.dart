@@ -8,7 +8,8 @@ class CitasListWidget extends StatelessWidget {
   final List<Cita> citas;
   final bool isLoading;
   final String? errorMessage;
-  final Function(Cita) onCitaTap;
+  final Function(Cita) onTap;
+  final Function(Cita)? onEditarTap;
   final Function(Cita, String)? onEstadoUpdate;
   final String Function(Cita) nombrePersonaBuilder;
   final String Function(Cita) especialidadBuilder;
@@ -18,7 +19,8 @@ class CitasListWidget extends StatelessWidget {
     required this.citas,
     required this.isLoading,
     this.errorMessage,
-    required this.onCitaTap,
+    required this.onTap,
+    this.onEditarTap,
     this.onEstadoUpdate,
     required this.nombrePersonaBuilder,
     required this.especialidadBuilder,
@@ -30,75 +32,25 @@ class CitasListWidget extends StatelessWidget {
 
     if (isLoading) {
       return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Color(0xFF00838F)),
-            SizedBox(height: 16),
-            Text(
-              'Cargando citas...',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-          ],
-        ),
+        child: CircularProgressIndicator(color: Color(0xFF00838F)),
       );
     }
 
     if (errorMessage != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
-            const SizedBox(height: 12),
-            Text(
-              'Error al cargar las citas',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: Colors.red[700],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              errorMessage!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-          ],
+        child: Text(
+          'Error al cargar citas:\n$errorMessage',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge?.copyWith(color: Colors.red),
         ),
       );
     }
 
     if (citas.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.calendar_month_outlined,
-              color: Colors.grey,
-              size: 64,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No tienes citas programadas',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Las nuevas citas aparecerán aquí',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[500],
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
+        child: Text(
+          'No hay citas disponibles',
+          style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey),
         ),
       );
     }
@@ -108,40 +60,68 @@ class CitasListWidget extends StatelessWidget {
       itemBuilder: (context, index) {
         final cita = citas[index];
 
+        final mostrarEstadoPane =
+            onEstadoUpdate != null &&
+            (cita.estado == 'PENDIENTE' || cita.estado == 'CONFIRMADA');
+
         return Slidable(
           key: ValueKey(cita.id),
+
           startActionPane:
-              (cita.estado == 'PENDIENTE')
+              onEditarTap != null
                   ? ActionPane(
-                    motion: const DrawerMotion(),
+                    motion: const ScrollMotion(),
                     extentRatio: 0.25,
                     children: [
                       SlidableAction(
-                        onPressed: (_) => onEstadoUpdate!(cita, 'confirmar'),
-                        backgroundColor: Colors.green,
+                        onPressed: (_) => onEditarTap!(cita),
+                        backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
-                        icon: Icons.check_circle,
+                        icon: Icons.edit,
                       ),
                     ],
                   )
                   : null,
+
           endActionPane:
-              (cita.estado == 'PENDIENTE' || cita.estado == 'CONFIRMADA')
+              mostrarEstadoPane
                   ? ActionPane(
                     motion: const DrawerMotion(),
-                    extentRatio: 0.25,
-                    children: [
-                      SlidableAction(
-                        onPressed: (_) => onEstadoUpdate!(cita, 'cancelar'),
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        icon: Icons.cancel,
-                      ),
-                    ],
+
+                    extentRatio: cita.estado == 'PENDIENTE' ? 0.50 : 0.25,
+                    children:
+                        cita.estado == 'PENDIENTE'
+                            ? [
+                              SlidableAction(
+                                onPressed:
+                                    (_) => onEstadoUpdate!(cita, 'confirmar'),
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                icon: Icons.check,
+                              ),
+
+                              SlidableAction(
+                                onPressed:
+                                    (_) => onEstadoUpdate!(cita, 'cancelar'),
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.cancel,
+                              ),
+                            ]
+                            : [
+                              SlidableAction(
+                                onPressed:
+                                    (_) => onEstadoUpdate!(cita, 'cancelar'),
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.cancel,
+                              ),
+                            ],
                   )
                   : null,
+
           child: ListTile(
-            onTap: () => onCitaTap(cita),
+            onTap: () => onTap(cita),
             leading: CircleAvatar(
               backgroundColor: getEstadoColor(cita.estado!),
               child: Icon(getEstadoIcon(cita.estado!), color: Colors.white),
@@ -160,7 +140,6 @@ class CitasListWidget extends StatelessWidget {
                 ),
               ],
             ),
-            trailing: const Icon(Icons.chevron_right),
           ),
         );
       },

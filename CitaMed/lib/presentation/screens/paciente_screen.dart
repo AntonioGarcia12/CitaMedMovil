@@ -23,9 +23,15 @@ class _PacienteScreenState extends State<PacienteScreen> {
 
   Future<void> _loadUserName() async {
     final prefs = await SharedPreferences.getInstance();
+    final nuevaImagen = prefs.getString('imagen') ?? '';
+    if (nuevaImagen != _userImage) {
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+    }
+
     setState(() {
       _userName = prefs.getString('nombre') ?? '';
-      _userImage = prefs.getString('imagen') ?? '';
+      _userImage = nuevaImagen;
     });
   }
 
@@ -59,6 +65,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                   height: 200,
                   width: 200,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -71,6 +78,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                   height: 250,
                   width: 250,
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.white.withOpacity(0.07),
                     borderRadius: BorderRadius.circular(125),
                   ),
@@ -99,6 +107,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
+                                  // ignore: deprecated_member_use
                                   color: Colors.black.withOpacity(0.1),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
@@ -118,10 +127,12 @@ class _PacienteScreenState extends State<PacienteScreen> {
                               final updated = await context.push(
                                 '/perfilPaciente',
                               );
-                              if (updated == true)
-                                _refreshPage(); // <- vuelve a leer SharedPreferences
+                              if (updated == true) {
+                                _loadUserName();
+                              }
                             },
                             child: CircleAvatar(
+                              key: ValueKey(_userImage),
                               radius: 24,
                               backgroundImage:
                                   _userImage.isNotEmpty
@@ -157,6 +168,7 @@ class _PacienteScreenState extends State<PacienteScreen> {
                                 BoxShadow(
                                   color: const Color(
                                     0xFF006064,
+                                    // ignore: deprecated_member_use
                                   ).withOpacity(0.3),
                                   blurRadius: 30,
                                   spreadRadius: 0,

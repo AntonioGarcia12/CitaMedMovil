@@ -25,6 +25,7 @@ class GradientBackgroundWidget extends StatelessWidget {
               height: 200,
               width: 200,
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(100),
               ),
@@ -37,6 +38,7 @@ class GradientBackgroundWidget extends StatelessWidget {
               height: 250,
               width: 250,
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.07),
                 borderRadius: BorderRadius.circular(125),
               ),

@@ -136,7 +136,7 @@ class AuthService {
     final response = await http.Response.fromStream(streamed);
     final rawBody = response.body;
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       if (rawBody.isEmpty) {
         throw Exception('El servidor devolvió una respuesta vacía');
       }

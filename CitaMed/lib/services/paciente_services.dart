@@ -6,6 +6,7 @@ import 'package:CitaMed/config/api_config.dart';
 import 'package:CitaMed/infrastructures/models/horario_medico.dart';
 import 'package:CitaMed/infrastructures/models/medico.dart';
 import 'package:CitaMed/infrastructures/models/usuario.dart';
+import 'package:CitaMed/utils/estado_utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -162,7 +163,7 @@ class PacienteServices {
       return <HorarioMedico>[];
     }
 
-    final msg = _extractError(response);
+    final msg = extractError(response);
     throw Exception('Error al obtener disponibilidad: $msg');
   }
 
@@ -188,15 +189,6 @@ class PacienteServices {
         msg = err['mensaje'] ?? msg;
       } catch (_) {}
       throw Exception(msg);
-    }
-  }
-
-  String _extractError(http.Response response) {
-    try {
-      final map = json.decode(response.body) as Map<String, dynamic>;
-      return map['mensaje'] as String? ?? 'Código ${response.statusCode}';
-    } catch (_) {
-      return 'Código ${response.statusCode}';
     }
   }
 }

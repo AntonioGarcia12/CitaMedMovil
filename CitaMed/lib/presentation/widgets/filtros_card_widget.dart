@@ -7,8 +7,6 @@ class FiltrosCitasWidget extends StatelessWidget {
   final DateTime? fechaFin;
   final Function(String?) onEstadoChanged;
   final VoidCallback onReiniciar;
-
-  /// Si es null, no se muestran los selectores de fecha
   final Function(bool esInicio)? onSeleccionarFecha;
 
   const FiltrosCitasWidget({
@@ -38,7 +36,6 @@ class FiltrosCitasWidget extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // Fila de estado + botón de reiniciar
         Row(
           children: [
             Expanded(
@@ -79,7 +76,6 @@ class FiltrosCitasWidget extends StatelessWidget {
 
         const SizedBox(height: 8),
 
-        // Solo si onSeleccionarFecha NO es null mostramos los selectores de fecha
         if (onSeleccionarFecha != null)
           Row(
             children: [

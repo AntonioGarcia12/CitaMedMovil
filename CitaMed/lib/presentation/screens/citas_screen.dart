@@ -39,6 +39,7 @@ class _CitaScreenState extends State<CitaScreen> {
         _medicosFiltrados = medicos;
       });
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error al cargar datos: $e');
     } finally {
       setState(() => _isLoading = false);
@@ -104,6 +105,7 @@ class _CitaScreenState extends State<CitaScreen> {
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
+                              // ignore: deprecated_member_use
                               color: const Color(0xFF006064).withOpacity(0.3),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
@@ -239,11 +241,6 @@ class _CitaScreenState extends State<CitaScreen> {
                         ),
                       ),
                   ],
-                ),
-                trailing: const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 14,
-                  color: Color(0xFF00838F),
                 ),
               ),
             );

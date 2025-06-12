@@ -46,6 +46,7 @@ class _EditarCitaScreenState extends State<EditarCitaScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error al cargar la cita: $e');
       _navegarAListadoCitas();
     }
@@ -76,9 +77,11 @@ class _EditarCitaScreenState extends State<EditarCitaScreen> {
 
     try {
       await _citaService.editarCita(cita: citaActualizada, citaId: widget.id);
+      // ignore: use_build_context_synchronously
       mostrarExito(context, 'Cita actualizada exitosamente');
       _navegarAListadoCitas();
     } catch (e) {
+      // ignore: use_build_context_synchronously
       mostrarError(context, 'Error al actualizar cita: $e');
     } finally {
       setState(() => _saving = false);

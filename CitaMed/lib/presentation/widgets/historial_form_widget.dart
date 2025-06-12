@@ -66,7 +66,6 @@ class _HistorialFormWidgetState extends State<HistorialFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Título del formulario
           Text(
             'Información del Historial',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -77,7 +76,6 @@ class _HistorialFormWidgetState extends State<HistorialFormWidget> {
           ),
           const SizedBox(height: 24),
 
-          // Información del paciente (no editable)
           if (widget.paciente != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
@@ -107,7 +105,6 @@ class _HistorialFormWidgetState extends State<HistorialFormWidget> {
             const SizedBox(height: 16),
           ],
 
-          // Información del médico (no editable)
           if (widget.medico != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
@@ -144,7 +141,6 @@ class _HistorialFormWidgetState extends State<HistorialFormWidget> {
             const SizedBox(height: 16),
           ],
 
-          // Campo de diagnóstico
           TextFormField(
             controller: _diagnosticoController,
             decoration: InputDecoration(
@@ -165,7 +161,6 @@ class _HistorialFormWidgetState extends State<HistorialFormWidget> {
           ),
           const SizedBox(height: 16),
 
-          // Campo de tratamiento
           TextFormField(
             controller: _tratamientoController,
             decoration: InputDecoration(
@@ -185,8 +180,6 @@ class _HistorialFormWidgetState extends State<HistorialFormWidget> {
             },
           ),
           const SizedBox(height: 24),
-
-          // Botón de guardar
           ElevatedButton(
             onPressed: widget.isLoading ? null : _submitForm,
             style: ElevatedButton.styleFrom(
